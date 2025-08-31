@@ -1,43 +1,35 @@
 import React from 'react';
-import { View, Image } from 'react-native';
-import { Tabs } from 'expo-router';
+import { Image, Pressable } from 'react-native';
+import { Tabs, useRouter } from 'expo-router';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+const PURPLE = '#6B3FD1';
 
 export default function TabLayout() {
-  const insets = useSafeAreaInsets();
-  const TAB_H = 62 + Math.max(0, insets.bottom - 8);
+  const router = useRouter();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          height: TAB_H,
-          paddingBottom: Math.max(8, insets.bottom / 2),
-          paddingTop: 6,
-          borderTopWidth: 0,
-          elevation: 0,
-          shadowOpacity: 0,
-          backgroundColor: '#FFFFFF',
-        },
-        tabBarActiveTintColor: '#6A35B7',
-        tabBarInactiveTintColor: '#9BA0AA',
+        tabBarActiveTintColor: PURPLE,
+        tabBarInactiveTintColor: '#9BA1A6',
         tabBarLabelStyle: { fontSize: 12 },
+        tabBarStyle: {
+          position: 'absolute',
+          height: 84,
+          borderTopLeftRadius: 24,
+          borderTopRightRadius: 24,
+          backgroundColor: 'rgba(255,255,255,0.96)',
+        },
       }}
     >
       <Tabs.Screen
         name="chat"
         options={{
           title: 'Chat',
-          headerShown: true,
-          headerTitle: 'Codeword',
-          headerTitleAlign: 'center',
-          headerTintColor: '#fff',
-          headerStyle: { backgroundColor: '#6A35B7' },
-          headerShadowVisible: false,
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="message-processing-outline" size={size} color={color} />
+            <MaterialCommunityIcons name="message-text-outline" size={size} color={color} />
           ),
         }}
       />
@@ -46,27 +38,38 @@ export default function TabLayout() {
         options={{
           title: 'Library',
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="book-outline" size={size} color={color} />
+            <Ionicons name="book-outline" size={size} color={color} />
           ),
         }}
       />
+
+      {/* Center "semicolon" – always purple, bigger, routes to /help */}
       <Tabs.Screen
         name="codeword"
         options={{
-          title: 'Codeword',
-          tabBarLabel: () => null, // center icon only, no label
-          tabBarIcon: () => (
-            <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: -2 }}>
-              {/* Always-purple PNG */}
+          title: '',
+          tabBarButton: (props) => (
+            <Pressable
+              {...props}
+              onPress={() => router.push('/help')}
+              style={[
+                props.style,
+                {
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transform: [{ translateY: -12 }],
+                },
+              ]}
+            >
               <Image
-                source={require('../assets/icons/safe/semicolon.png')}
-                style={{ width: 36, height: 36 }}
-                resizeMode="contain"
+                source={require('../../assets/icons/SemicolonIconPurple.png')}
+                style={{ width: 36, height: 36, resizeMode: 'contain' }}
               />
-            </View>
+            </Pressable>
           ),
         }}
       />
+
       <Tabs.Screen
         name="mood"
         options={{
