@@ -1,83 +1,81 @@
 import React from 'react';
-import { Image, View } from 'react-native';
+import { View, Image } from 'react-native';
 import { Tabs } from 'expo-router';
-import Header from '../../src/components/Header';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-
-const I = ({ src, color }: { src: any; color: string }) => (
-  <Image source={src} style={{ width: 24, height: 24, tintColor: color }} resizeMode="contain" />
-);
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+  const TAB_H = 62 + Math.max(0, insets.bottom - 8);
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#6A35B7',
-        tabBarInactiveTintColor: '#8E8E93',
         tabBarStyle: {
-          height: 88,
-          paddingTop: 8,
-          paddingBottom: 20,
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'white',
+          height: TAB_H,
+          paddingBottom: Math.max(8, insets.bottom / 2),
+          paddingTop: 6,
           borderTopWidth: 0,
-          elevation: 20,
-          shadowColor: '#000',
-          shadowOpacity: 0.08,
-          shadowRadius: 16,
-          shadowOffset: { width: 0, height: -4 },
+          elevation: 0,
+          shadowOpacity: 0,
+          backgroundColor: '#FFFFFF',
         },
-        tabBarLabelStyle: { fontSize: 12, marginTop: 4 },
+        tabBarActiveTintColor: '#6A35B7',
+        tabBarInactiveTintColor: '#9BA0AA',
+        tabBarLabelStyle: { fontSize: 12 },
       }}
     >
       <Tabs.Screen
         name="chat"
         options={{
           title: 'Chat',
-          header: () => <Header title="Codeword" />,
-          tabBarIcon: ({ color }) => (
-            <I src={require('../assets/icons/ChatAi ICON.png')} color={color} />
+          headerShown: true,
+          headerTitle: 'Codeword',
+          headerTitleAlign: 'center',
+          headerTintColor: '#fff',
+          headerStyle: { backgroundColor: '#6A35B7' },
+          headerShadowVisible: false,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="message-processing-outline" size={size} color={color} />
           ),
         }}
       />
-
       <Tabs.Screen
         name="library"
         options={{
           title: 'Library',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="book-outline" size={size} color={color} />
+            <MaterialCommunityIcons name="book-outline" size={size} color={color} />
           ),
         }}
       />
-
-      {/* Center semicolon tab — routes to /(tabs)/codeword */}
       <Tabs.Screen
         name="codeword"
         options={{
           title: 'Codeword',
-          tabBarIcon: ({ color }) => (
-            <I src={require('../assets/icons/SemicolonIconPurple.png')} color={color} />
+          tabBarLabel: () => null, // center icon only, no label
+          tabBarIcon: () => (
+            <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: -2 }}>
+              {/* Always-purple PNG */}
+              <Image
+                source={require('../assets/icons/safe/semicolon.png')}
+                style={{ width: 36, height: 36 }}
+                resizeMode="contain"
+              />
+            </View>
           ),
         }}
       />
-
       <Tabs.Screen
         name="mood"
         options={{
           title: 'Mood',
           tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="emoticon-outline" size={size} color={color} />
+            <Ionicons name="happy-outline" size={size} color={color} />
           ),
         }}
       />
-
       <Tabs.Screen
         name="profile"
         options={{

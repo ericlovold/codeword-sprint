@@ -3,9 +3,10 @@
     "name": "codeword-sprint",
     "slug": "codeword-sprint",
     "scheme": "codeword",
-    "plugins": [
-      "expo-router",
-      "expo-font"
-    ]
+    "plugins": ["expo-router", "expo-font"],
+    "extra": {
+      "apiBase": "http://localhost:9988",
+      "wsUrl": "ws://localhost:9988/ws"
+    }
   }
 }
