@@ -1,50 +1,70 @@
-import { Tabs } from "expo-router";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import React from 'react';
+import { Tabs } from 'expo-router';
+import { Image } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export default function TabsLayout() {
+export const TAB_HEIGHT = 64;
+
+// Map tab icons to your assets (adjust to taste)
+const ICONS = {
+  chat: require('../../app/assets/icons/ChatAi ICON.png'),
+  library: require('../../app/assets/icons/AlliesIcon.png'),
+  mood: require('../../app/assets/icons/FistBumpIcon002.png'),
+  profile: require('../../app/assets/icons/ShieldIcon.png'),
+};
+
+function TabPNG({ src, focused }: { src: any; focused: boolean }) {
+  return (
+    <Image
+      source={src}
+      style={{ width: 24, height: 24, opacity: focused ? 1 : 0.6 }}
+      resizeMode="contain"
+    />
+  );
+}
+
+export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
-      initialRouteName="chat"
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: "#5A3FA6",
-        tabBarInactiveTintColor: "#94A3B8",
-        tabBarStyle: { height: 64, paddingBottom: 10, paddingTop: 8 }
+        tabBarStyle: {
+          height: TAB_HEIGHT + insets.bottom,
+          paddingBottom: Math.max(insets.bottom, 10),
+          paddingTop: 8,
+          backgroundColor: 'white',
+        },
+        tabBarLabelStyle: { fontSize: 12 },
       }}
     >
       <Tabs.Screen
-        name="home"
+        name="chat"
         options={{
-          title: "Home",
-          tabBarIcon: ({ color, size }) => <Ionicons name="home-outline" size={size} color={color} />
+          title: 'Chat',
+          tabBarIcon: ({ focused }) => <TabPNG src={ICONS.chat} focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="library"
         options={{
-          title: "Library",
-          tabBarIcon: ({ color, size }) => <Ionicons name="book-outline" size={size} color={color} />
+          title: 'Library',
+          tabBarIcon: ({ focused }) => <TabPNG src={ICONS.library} focused={focused} />,
         }}
       />
       <Tabs.Screen
-        name="help"
+        name="mood"
         options={{
-          title: "Help",
-          tabBarIcon: ({ color, size }) => <Ionicons name="help-circle-outline" size={size} color={color} />
-        }}
-      />
-      <Tabs.Screen
-        name="chat"
-        options={{
-          title: "Chat",
-          tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="message-processing-outline" size={size} color={color} />
+          title: 'Mood',
+          tabBarIcon: ({ focused }) => <TabPNG src={ICONS.mood} focused={focused} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
-          tabBarIcon: ({ color, size }) => <Ionicons name="person-circle-outline" size={size} color={color} />
+          title: 'Profile',
+          tabBarIcon: ({ focused }) => <TabPNG src={ICONS.profile} focused={focused} />,
         }}
       />
     </Tabs>

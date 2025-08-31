@@ -1,11 +1,9 @@
-import { Text } from "react-native";
-import Screen from "../../src/components/Screen";
-
+import React from 'react';
+import { View, Text } from 'react-native';
 export default function Profile() {
   return (
-    <Screen>
-      <Text style={{ fontSize: 34, fontWeight: "800" }}>Profile</Text>
-      <Text style={{ marginTop: 12, fontSize: 18 }}>Settings & account will live here.</Text>
-    </Screen>
+    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <Text>Profile</Text>
+    </View>
   );
 }
