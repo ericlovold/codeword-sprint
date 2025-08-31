@@ -1,97 +1,90 @@
 import React from 'react';
-import { Tabs } from 'expo-router';
 import { Image, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Tabs } from 'expo-router';
+import Header from '../../src/components/Header';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
-export const TAB_HEIGHT = 72;
-
-// Better icon mapping with cleaner assets
-const ICONS = {
-  chat: require('../../app/assets/icons/AiIcon.png'),
-  library: require('../../app/assets/icons/AlliesIcon.png'),
-  mood: require('../../app/assets/icons/FistBumpIcon002.png'),
-  profile: require('../../app/assets/icons/ShieldIcon.png'),
-};
-
-function TabPNG({ src, focused }: { src: any; focused: boolean }) {
-  return (
-    <Image
-      source={src}
-      style={{
-        width: 26,
-        height: 26,
-        opacity: focused ? 1 : 0.5,
-        tintColor: focused ? '#6D4AE7' : '#94A3B8',
-      }}
-      resizeMode="contain"
-    />
-  );
-}
+const I = ({ src, color }: { src: any; color: string }) => (
+  <Image source={src} style={{ width: 24, height: 24, tintColor: color }} resizeMode="contain" />
+);
 
 export default function TabLayout() {
-  const insets = useSafeAreaInsets();
-
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarActiveTintColor: '#6A35B7',
+        tabBarInactiveTintColor: '#8E8E93',
         tabBarStyle: {
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: TAB_HEIGHT + insets.bottom,
-          paddingBottom: Math.max(insets.bottom, 12),
-          paddingTop: 10,
-          paddingHorizontal: 8,
-          backgroundColor: 'white',
+          height: 88,
+          paddingTop: 8,
+          paddingBottom: 20,
           borderTopLeftRadius: 24,
           borderTopRightRadius: 24,
+          position: 'absolute',
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'white',
           borderTopWidth: 0,
+          elevation: 20,
           shadowColor: '#000',
           shadowOpacity: 0.08,
           shadowRadius: 16,
           shadowOffset: { width: 0, height: -4 },
-          elevation: 10,
         },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '500',
-          marginTop: 4,
-        },
-        tabBarActiveTintColor: '#6D4AE7',
-        tabBarInactiveTintColor: '#94A3B8',
-        tabBarIconStyle: {
-          marginTop: 4,
-        },
+        tabBarLabelStyle: { fontSize: 12, marginTop: 4 },
       }}
     >
       <Tabs.Screen
         name="chat"
         options={{
           title: 'Chat',
-          tabBarIcon: ({ focused }) => <TabPNG src={ICONS.chat} focused={focused} />,
+          header: () => <Header title="Codeword" />,
+          tabBarIcon: ({ color }) => (
+            <I src={require('../assets/icons/ChatAi ICON.png')} color={color} />
+          ),
         }}
       />
+
       <Tabs.Screen
         name="library"
         options={{
           title: 'Library',
-          tabBarIcon: ({ focused }) => <TabPNG src={ICONS.library} focused={focused} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="book-outline" size={size} color={color} />
+          ),
         }}
       />
+
+      {/* Center semicolon tab — routes to /(tabs)/codeword */}
+      <Tabs.Screen
+        name="codeword"
+        options={{
+          title: 'Codeword',
+          tabBarIcon: ({ color }) => (
+            <I src={require('../assets/icons/SemicolonIconPurple.png')} color={color} />
+          ),
+        }}
+      />
+
       <Tabs.Screen
         name="mood"
         options={{
           title: 'Mood',
-          tabBarIcon: ({ focused }) => <TabPNG src={ICONS.mood} focused={focused} />,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="emoticon-outline" size={size} color={color} />
+          ),
         }}
       />
+
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ focused }) => <TabPNG src={ICONS.profile} focused={focused} />,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-circle-outline" size={size} color={color} />
+          ),
         }}
       />
     </Tabs>
