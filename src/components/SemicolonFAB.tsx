@@ -3,8 +3,8 @@ import { View, Image, Animated, Pressable, StyleSheet } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const SIZE = 68; // FAB diameter
-const TAB_HEIGHT = 64; // Must match tab bar height
+const SIZE = 64; // FAB diameter
+const TAB_HEIGHT = 72; // Must match tab bar height
 
 export default function SemicolonFAB() {
   const router = useRouter();
@@ -14,10 +14,10 @@ export default function SemicolonFAB() {
   // Only show when we're under the tabs group
   if (!pathname.startsWith('/(tabs)/')) return null;
 
-  const bottom = insets.bottom + (TAB_HEIGHT - SIZE) / 2;
+  const bottom = insets.bottom + TAB_HEIGHT / 2 - SIZE / 2 + 4; // Slightly higher for visual centering
 
   const scale = useRef(new Animated.Value(1)).current;
-  const onPressIn = () => Animated.spring(scale, { toValue: 0.96, useNativeDriver: true }).start();
+  const onPressIn = () => Animated.spring(scale, { toValue: 0.94, useNativeDriver: true }).start();
   const onPressOut = () => Animated.spring(scale, { toValue: 1, useNativeDriver: true }).start();
 
   return (
@@ -49,7 +49,7 @@ export default function SemicolonFAB() {
               backgroundColor: '#6D4AE7',
               alignItems: 'center',
               justifyContent: 'center',
-              borderWidth: 4,
+              borderWidth: 3,
               borderColor: 'white',
             }}
           >
