@@ -1,83 +1,72 @@
 import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radii } from '../src/design/tokens';
-import ActionButton from '../src/components/ActionButton';
-import { callNumber, smsNumber, DEMO_MODE } from '../src/utils/call';
+import { View, Text, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
-export default function HelpModal() {
-  const insets = useSafeAreaInsets();
+function PrimaryButton({ title, onPress }: { title: string; onPress: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        backgroundColor: '#5A2AA7',
+        paddingVertical: 16,
+        borderRadius: 20,
+        alignItems: 'center',
+        marginBottom: 12,
+      }}
+    >
+      <Text style={{ color: 'white', fontWeight: '700', fontSize: 16 }}>{title}</Text>
+    </Pressable>
+  );
+}
+
+function OutlineButton({ title, onPress }: { title: string; onPress: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        borderColor: '#5A2AA7',
+        borderWidth: 2,
+        paddingVertical: 14,
+        borderRadius: 20,
+        alignItems: 'center',
+        marginBottom: 12,
+        backgroundColor: 'rgba(255,255,255,0.7)',
+      }}
+    >
+      <Text style={{ color: '#5A2AA7', fontWeight: '700', fontSize: 16 }}>{title}</Text>
+    </Pressable>
+  );
+}
+
+export default function HelpScreen() {
   const router = useRouter();
+  const demo = (msg: string) => Alert.alert('Demo', msg);
 
   return (
-    <LinearGradient
-      colors={[colors.brand.purple, colors.brand.purple700]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={{ flex: 1 }}
-    >
+    <View style={{ flex: 1, padding: 16, backgroundColor: '#EAF3F3' }}>
       <View
         style={{
-          paddingTop: insets.top + 8,
-          paddingHorizontal: 16,
-          paddingBottom: 16,
+          backgroundColor: '#5A2AA7',
+          paddingTop: 12,
+          paddingBottom: 18,
+          alignItems: 'center',
+          borderBottomLeftRadius: 24,
+          borderBottomRightRadius: 24,
+          marginBottom: 16,
         }}
       >
-        <Text style={{ color: 'white', fontSize: 24, fontWeight: '900', textAlign: 'center' }}>
-          Get Help
-        </Text>
+        <Text style={{ color: 'white', fontSize: 24, fontWeight: '700' }}>Get Help</Text>
       </View>
 
-      {/* Card body */}
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: 'white',
-          borderTopLeftRadius: radii.xl,
-          borderTopRightRadius: radii.xl,
-          padding: 16,
-        }}
-      >
-        <ScrollView contentContainerStyle={{ paddingVertical: 8 }}>
-          <Text style={{ color: colors.text.faint, marginBottom: 16 }}>
-            Choose an option. {DEMO_MODE ? '(Demo safe—no accidental calls.)' : ''}
-          </Text>
+      <Text style={{ color: '#3A2F57', marginBottom: 16 }}>
+        Choose an option. (Demo actions for now—no accidental calls.)
+      </Text>
 
-          <ActionButton
-            label="Send Codeword Alert"
-            onPress={() => {
-              // TODO: wire to backend alert
-              router.back();
-            }}
-            style={{ marginBottom: 12 }}
-          />
-
-          <ActionButton
-            variant="outline"
-            label="Call 988 (Mental Health)"
-            onPress={() => callNumber('988')}
-            style={{ marginBottom: 12 }}
-          />
-
-          <ActionButton
-            variant="outline"
-            label="Call 911 (Emergency)"
-            onPress={() => callNumber('911')}
-            style={{ marginBottom: 12 }}
-          />
-
-          <ActionButton
-            variant="outline"
-            label="Message Ally"
-            onPress={() => smsNumber('5551234567', 'Hey—can you check in with me?')}
-            style={{ marginBottom: 12 }}
-          />
-
-          <ActionButton variant="outline" label="Back to Chat" onPress={() => router.back()} />
-        </ScrollView>
-      </View>
-    </LinearGradient>
+      <PrimaryButton title="Send Codeword Alert" onPress={() => demo('Send alert')} />
+      <OutlineButton title="Call 988 (Mental Health)" onPress={() => demo('Dial 988')} />
+      <OutlineButton title="Call 911 (Emergency)" onPress={() => demo('Dial 911')} />
+      <OutlineButton title="Message Ally" onPress={() => demo('Open Ally DM')} />
+      <OutlineButton title="Back to Chat" onPress={() => router.back()} />
+    </View>
   );
 }

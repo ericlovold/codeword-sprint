@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import ChatHeader, { CHAT_HEADER_HEIGHT } from '../../src/components/ChatHeader';
 
@@ -16,6 +17,7 @@ const PURPLE = '#6B3FD1';
 
 export default function ChatTab() {
   const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
   const [messages, setMessages] = useState<string[]>([
     "Hi Eric, I'm your Codeword AI coach, here to support you emotionally, detect crises, and help you navigate challenging responses from your ally.",
     "I'm feeling overwhelmed and need someone to talk to.",
@@ -25,7 +27,6 @@ export default function ChatTab() {
   const scrollRef = useRef<ScrollView>(null);
 
   const INPUT_H = 56;
-  const TAB_H = insets.bottom + 72; // matches _layout tabBarStyle.height with safe area
 
   function send() {
     if (!input.trim()) return;
@@ -42,7 +43,7 @@ export default function ChatTab() {
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: '#F6F1FF' }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={TAB_H} // keeps iOS keyboard from covering input
+      keyboardVerticalOffset={tabBarHeight} // keeps iOS keyboard from covering input
     >
       {/* Pinned header */}
       <ChatHeader />
@@ -54,7 +55,7 @@ export default function ChatTab() {
         contentContainerStyle={{
           paddingTop: CHAT_HEADER_HEIGHT + 12,
           paddingHorizontal: 16,
-          paddingBottom: TAB_H + INPUT_H + 20,
+          paddingBottom: tabBarHeight + 80 + insets.bottom,
           gap: 12,
         }}
         showsVerticalScrollIndicator={false}
@@ -90,7 +91,7 @@ export default function ChatTab() {
           position: 'absolute',
           left: 12,
           right: 12,
-          bottom: TAB_H + 12,
+          bottom: tabBarHeight + 12,
           height: INPUT_H,
           backgroundColor: 'white',
           borderRadius: 28,

@@ -1,80 +1,117 @@
-import React from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { colors } from '../../src/design/tokens';
-import Header from '../../src/components/Header';
-import AccordionCard from '../../src/components/AccordionCard';
-import Bullet from '../../src/components/Bullet';
-import { GUIDES } from '../../src/data/guides';
+import React, { useState } from 'react';
+import { View, Text, Pressable, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { librarySections } from '../../src/data/library';
 
-export default function Library() {
+function Card({ children, style }: any) {
+  return (
+    <View
+      style={[
+        {
+          backgroundColor: 'white',
+          borderRadius: 16,
+          paddingVertical: 14,
+          paddingHorizontal: 16,
+          shadowColor: '#000',
+          shadowOpacity: 0.08,
+          shadowRadius: 8,
+          shadowOffset: { width: 0, height: 2 },
+          elevation: 2,
+          marginBottom: 12,
+        },
+        style,
+      ]}
+    >
+      {children}
+    </View>
+  );
+}
+
+export default function LibraryScreen() {
   const router = useRouter();
-  const tabH = useBottomTabBarHeight();
+  const [openId, setOpenId] = useState<string | null>('be-calm'); // default open like wireframe
 
   return (
-    <LinearGradient
-      colors={['#F1E9FF', '#DDE6F5', '#CFEDE6']}
-      start={{ x: 0.3, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={{ flex: 1 }}
-    >
-      <Header title="Codeword" subtitle="Guides" />
+    <View style={{ flex: 1, backgroundColor: '#F3EAF7' /* subtle bg under gradient */ }}>
+      {/* Header bar like the system you've been using */}
+      <View
+        style={{
+          backgroundColor: '#5A2AA7',
+          paddingTop: 12,
+          paddingBottom: 18,
+          alignItems: 'center',
+          borderBottomLeftRadius: 24,
+          borderBottomRightRadius: 24,
+        }}
+      >
+        <Text style={{ color: 'white', fontSize: 24, fontWeight: '700' }}>Codeword</Text>
+      </View>
 
       <ScrollView
-        contentContainerStyle={{ padding: 16, paddingBottom: tabH + 24 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 28 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* First item is a link to the detailed screen */}
-        <Pressable
-          onPress={() => router.push('/library/questions')}
-          style={{
-            backgroundColor: 'rgba(255,255,255,0.92)',
-            borderRadius: 24,
-            borderWidth: 1,
-            borderColor: colors.surface.ring,
-            paddingVertical: 16,
-            paddingHorizontal: 16,
-            marginBottom: 12,
-          }}
-        >
-          <View
-            style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}
-          >
-            <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text.title }}>
-              {GUIDES[0].title}
-            </Text>
-            <Text style={{ color: colors.text.faint }}>›</Text>
-          </View>
-        </Pressable>
+        <Text style={{ fontSize: 28, fontWeight: '700', color: '#2C2240', marginBottom: 12 }}>
+          Guides
+        </Text>
 
-        {/* Remaining groups as accordions */}
-        {GUIDES.slice(1).map((g) => (
-          <AccordionCard key={g.id} title={g.title}>
-            <View style={{ gap: 6 }}>
-              {/* Optional "Ask AI Coach" pill */}
+        {librarySections.map((section) => {
+          const isOpen = openId === section.id;
+          return (
+            <Card key={section.id} style={{ overflow: 'hidden' }}>
               <Pressable
-                onPress={() => router.push('/(tabs)/chat')}
+                onPress={() => setOpenId(isOpen ? null : section.id)}
                 style={{
-                  alignSelf: 'flex-end',
-                  marginBottom: 10,
-                  backgroundColor: colors.brand.purple,
-                  paddingHorizontal: 14,
-                  paddingVertical: 8,
-                  borderRadius: 999,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
                 }}
               >
-                <Text style={{ color: 'white', fontWeight: '700' }}>Ask AI Coach</Text>
+                <Text style={{ fontSize: 18, fontWeight: '700', color: '#1D1235' }}>
+                  {section.title}
+                </Text>
+                <Text style={{ fontSize: 18, color: '#6B5FA8' }}>{isOpen ? '▾' : '▸'}</Text>
               </Pressable>
 
-              {(g.bullets ?? []).map((b, i) => (
-                <Bullet key={i}>{b}</Bullet>
-              ))}
-            </View>
-          </AccordionCard>
-        ))}
+              {isOpen && (
+                <View style={{ marginTop: 12, gap: 10 }}>
+                  {section.items.map((it) => (
+                    <Card key={it.id} style={{ backgroundColor: '#F7F3FB', marginBottom: 8 }}>
+                      <Pressable
+                        onPress={() => {
+                          if (it.linkTo) router.push(it.linkTo);
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 16,
+                            fontWeight: '600',
+                            color: '#2C2240',
+                            marginBottom: it.bullets?.length ? 8 : 0,
+                          }}
+                        >
+                          {it.title}
+                        </Text>
+
+                        {it.bullets?.length ? (
+                          <View style={{ gap: 6 }}>
+                            {it.bullets.map((b, idx) => (
+                              <View key={idx} style={{ flexDirection: 'row', gap: 8 }}>
+                                <Text style={{ color: '#7C6CA8' }}>•</Text>
+                                <Text style={{ color: '#3A2F57', flex: 1 }}>{b}</Text>
+                              </View>
+                            ))}
+                          </View>
+                        ) : null}
+                      </Pressable>
+                    </Card>
+                  ))}
+                </View>
+              )}
+            </Card>
+          );
+        })}
       </ScrollView>
-    </LinearGradient>
+    </View>
   );
 }
