@@ -17,7 +17,7 @@ const TAB_ICON = (routeName: string) => {
       return require('../../assets/icons/tabs/TabChat.png');
     case 'library':
       return require('../../assets/icons/tabs/TabLibrary.png');
-    case 'mood':
+    case 'coach':
       return require('../../assets/icons/tabs/TabCoach.png');
     case 'profile':
       return require('../../assets/icons/tabs/TabProfile.png');
