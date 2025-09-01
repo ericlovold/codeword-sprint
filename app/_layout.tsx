@@ -1,16 +1,27 @@
-import React from 'react';
-import { View } from 'react-native';
-import { Slot } from 'expo-router';
+// app/_layout.tsx
+import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import SemicolonFAB from '../src/components/SemicolonFAB';
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <View style={{ flex: 1 }}>
-        <Slot />
-        <SemicolonFAB />
-      </View>
+      <Stack screenOptions={{ headerShown: false }}>
+        {/* Tabs are the main shell */}
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
+        {/* Non-tab screens live here and get a back arrow automatically */}
+        <Stack.Screen
+          name="help"
+          options={{
+            title: 'Get Help',
+            headerShown: true,
+            presentation: 'card', // full page (change to "modal" if you want a sheet)
+          }}
+        />
+
+        {/* No dead ends */}
+        <Stack.Screen name="+not-found" options={{ title: 'Oops', headerShown: true }} />
+      </Stack>
     </SafeAreaProvider>
   );
 }

@@ -32,31 +32,30 @@ function CenterTabButton(props: any) {
 
   return (
     <Pressable
-      accessibilityLabel="Get help"
+      accessibilityLabel="Open Get Help"
       onPress={() => router.push('/help')}
-      style={[
+      style={({ pressed }) => [
         {
           alignItems: 'center',
           justifyContent: 'center',
-          width: 68,
-          height: 68,
-          borderRadius: 34,
-          backgroundColor: 'white',
+          width: 56,
+          height: 56,
+          borderRadius: 28,
+          backgroundColor: '#6B2FA1',
+          marginTop: -12, // visually centers the FAB over the bar
+          opacity: pressed ? 0.85 : 1,
           shadowColor: '#000',
           shadowOpacity: 0.18,
           shadowRadius: 10,
           shadowOffset: { width: 0, height: 4 },
           elevation: 6,
-          // Tweak this to nudge vertical alignment over the tab bar:
-          transform: [{ translateY: Platform.OS === 'ios' ? -4 : -2 }],
         },
-        props.style,
       ]}
       hitSlop={16}
     >
       <Image
         source={SemicolonPNG}
-        style={{ width: 46, height: 46, resizeMode: 'contain', tintColor: PURPLE }}
+        style={{ width: 28, height: 28, resizeMode: 'contain', tintColor: '#ffffff' }}
       />
     </Pressable>
   );
