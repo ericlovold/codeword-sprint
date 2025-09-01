@@ -9,7 +9,7 @@ export const GUIDES: Guide[] = [
   {
     id: 'questions',
     title: 'Questions to ask at the moment of crisis',
-    route: '/(tabs)/chat', // for now: deep-link to chat; later this can open a detail sheet
+    route: '/library/questions',
   },
   {
     id: 'be-calm',
