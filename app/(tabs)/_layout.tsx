@@ -2,6 +2,7 @@ import React from 'react';
 import { Tabs } from 'expo-router';
 import { Image } from 'react-native';
 import BrandTabBar from '../../src/components/BrandTabBar';
+import BrandHeader from '../../src/components/BrandHeader';
 
 // Tab PNG icons
 const TabChatPNG = require('../assets/icons/tabs/TabChat.png');
@@ -13,7 +14,25 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
+        header: (props) => {
+          // Map titles per screen to match Figma
+          const t = props.options.title ?? props.route.name;
+          const title =
+            t === 'chat' || t === 'Codeword'
+              ? 'Codeword'
+              : t === 'library' || t === 'Guides'
+                ? 'Guides'
+                : t === 'mood' || t === 'Coach'
+                  ? 'Coach'
+                  : t === 'profile' || t === 'Profile'
+                    ? 'Profile'
+                    : t === 'codeword'
+                      ? 'Codeword'
+                      : String(t);
+          // Only show back when not on the root tab screens (Tabs handles this)
+          return <BrandHeader title={title} showBack={false} />;
+        },
+        headerTransparent: true,
         tabBarShowLabel: true, // BrandTabBar draws labels for side tabs
       }}
       tabBar={(props) => <BrandTabBar {...props} />}
@@ -21,7 +40,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="chat"
         options={{
-          title: 'Chat',
+          title: 'Codeword',
           tabBarIcon: ({ size }) => (
             <Image source={TabChatPNG} style={{ width: size, height: size }} />
           ),
@@ -30,7 +49,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="library"
         options={{
-          title: 'Library',
+          title: 'Guides',
           tabBarIcon: ({ size }) => (
             <Image source={TabLibraryPNG} style={{ width: size, height: size }} />
           ),

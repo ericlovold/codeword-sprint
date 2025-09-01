@@ -68,15 +68,17 @@ function BrandHeaderInner({
         {/* Center: Wordmark + semicolon */}
         <View style={styles.centerWrap}>
           <Text numberOfLines={1} style={styles.titleText}>
-            Codeword
+            {title}
           </Text>
-          <Image
-            source={SEMICOLON}
-            style={styles.semi}
-            // Tint if using white asset
-            // @ts-ignore
-            tintColor={TEXT_ON_PURPLE}
-          />
+          {title === 'Codeword' && (
+            <Image
+              source={SEMICOLON}
+              style={styles.semi}
+              // Tint if using white asset
+              // @ts-ignore
+              tintColor={TEXT_ON_PURPLE}
+            />
+          )}
         </View>
 
         {/* Right: optional action */}
