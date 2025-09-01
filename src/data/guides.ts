@@ -1,11 +1,4 @@
-export type Guide = {
-  id: string;
-  title: string;
-  bullets?: string[];
-  route?: string; // when tapping should open another screen instead of expanding
-};
-
-export const GUIDES: Guide[] = [
+export const GUIDES = [
   {
     id: 'questions',
     title: 'Questions to ask at the moment of crisis',
@@ -25,42 +18,39 @@ export const GUIDES: Guide[] = [
     id: 'active-listening',
     title: 'Active listening',
     bullets: [
-      "Use short, open-ended prompts: 'Can you tell me more?'",
-      "Reflect back what you're hearing to show understanding.",
-      'Validate feelings without trying to fix immediately.',
+      "Reflect back what you're hearing without judgment.",
+      "Use short acknowledgements like 'I hear you.'",
+      'Allow silence so they can gather thoughts.',
     ],
   },
   {
     id: 'thank-them',
     title: 'Thank them for trusting you',
     bullets: [
-      'Acknowledge their courage in reaching out.',
-      "Reassure them you're here to support, not judge.",
+      'Acknowledge the courage it took to share.',
+      "Reinforce that you're there to support them.",
     ],
   },
   {
-    id: 'assure-support',
+    id: 'ensure-support',
     title: 'Ensure them that you are there to support them',
     bullets: [
+      'Ask what support would feel helpful right now.',
       'Offer to stay with them while they talk or rest.',
-      'Agree on next steps together at their pace.',
     ],
   },
   {
-    id: 'avoid-understanding',
+    id: 'avoid-comparisons',
     title: "Don't say you understand how they feel",
     bullets: [
-      "Instead, say: 'I'm here with you,' or 'That sounds really hard.'",
-      'Avoid comparisons to your own experiences.',
+      'Avoid comparing to your own experiences.',
+      'Keep the focus on their feelings and needs.',
     ],
   },
   {
-    id: 'give-time',
+    id: 'time',
     title: 'Give them as much time as possible',
-    bullets: [
-      'Let silences happen—pressure can increase distress.',
-      "Check in gently: 'Would it help to pause for a moment?'",
-    ],
+    bullets: ['Let the conversation move at their pace.', 'Check if they need a break or water.'],
   },
   {
     id: 'suggest-help',

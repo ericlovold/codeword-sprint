@@ -23,19 +23,11 @@ export default function QuestionsScreen() {
       end={{ x: 1, y: 1 }}
       style={{ flex: 1 }}
     >
-      <Header title="Codeword" />
+      <Header title="Codeword" subtitle="Questions to ask" showBack />
       <ScrollView
-        contentContainerStyle={{
-          padding: 20,
-          paddingBottom: tabH + 32,
-          gap: 14,
-        }}
+        contentContainerStyle={{ padding: 16, paddingBottom: tabH + 24, gap: 14 }}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={{ fontSize: 26, fontWeight: '800', color: colors.text.title }}>
-          Questions to ask at the moment of crisis
-        </Text>
-
         {QUESTIONS.map((q, i) => (
           <View
             key={i}
