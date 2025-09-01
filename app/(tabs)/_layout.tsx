@@ -1,27 +1,23 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import BrandTabBar from '../../src/components/BrandTabBar';
-
-const ChatPNG = require('../assets/icons/ChatAi ICON.png');
-const LibraryPNG = require('../assets/icons/AiIcon.png');
-const MoodPNG = require('../assets/icons/FistBumpIcon002.png');
-const ProfilePNG = require('../assets/icons/AlliesIcon.png');
 
 export default function TabLayout() {
   return (
     <Tabs
-      tabBar={(props) => <BrandTabBar {...props} />}
       screenOptions={{
         headerShown: false,
+        tabBarShowLabel: true, // BrandTabBar draws labels for side tabs
       }}
+      tabBar={(props) => <BrandTabBar {...props} />}
     >
       <Tabs.Screen
         name="chat"
         options={{
           title: 'Chat',
           tabBarIcon: ({ color, size }) => (
-            <Image source={ChatPNG} style={{ width: size, height: size, tintColor: color }} />
+            <Ionicons name="chatbubble-ellipses-outline" size={size} color={color} />
           ),
         }}
       />
@@ -30,16 +26,27 @@ export default function TabLayout() {
         options={{
           title: 'Library',
           tabBarIcon: ({ color, size }) => (
-            <Image source={LibraryPNG} style={{ width: size, height: size, tintColor: color }} />
+            <Ionicons name="book-outline" size={size} color={color} />
           ),
         }}
       />
+
+      {/* The middle route (whatever is 3rd) becomes the big semicolon. 
+          You can point it to your primary screen (chat) or a central "Codeword" hub. */}
+      <Tabs.Screen
+        name="codeword"
+        options={{
+          title: 'Codeword', // label won't show for center button
+          tabBarIcon: () => null, // ignored by BrandTabBar center slot
+        }}
+      />
+
       <Tabs.Screen
         name="mood"
         options={{
-          title: 'Mood',
+          title: 'Coach',
           tabBarIcon: ({ color, size }) => (
-            <Image source={MoodPNG} style={{ width: size, height: size, tintColor: color }} />
+            <Ionicons name="sparkles-outline" size={size} color={color} />
           ),
         }}
       />
@@ -48,7 +55,7 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, size }) => (
-            <Image source={ProfilePNG} style={{ width: size, height: size, tintColor: color }} />
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />
