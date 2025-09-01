@@ -25,7 +25,7 @@ export default function ChatTab() {
   const scrollRef = useRef<ScrollView>(null);
 
   const INPUT_H = 56;
-  const TAB_H = 84; // matches _layout tabBarStyle.height
+  const TAB_H = insets.bottom + 72; // matches _layout tabBarStyle.height with safe area
 
   function send() {
     if (!input.trim()) return;
@@ -54,7 +54,7 @@ export default function ChatTab() {
         contentContainerStyle={{
           paddingTop: CHAT_HEADER_HEIGHT + 12,
           paddingHorizontal: 16,
-          paddingBottom: insets.bottom + TAB_H + INPUT_H + 16,
+          paddingBottom: TAB_H + INPUT_H + 20,
           gap: 12,
         }}
         showsVerticalScrollIndicator={false}
@@ -90,7 +90,7 @@ export default function ChatTab() {
           position: 'absolute',
           left: 12,
           right: 12,
-          bottom: insets.bottom + TAB_H + 12,
+          bottom: TAB_H + 12,
           height: INPUT_H,
           backgroundColor: 'white',
           borderRadius: 28,

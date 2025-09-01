@@ -1,26 +1,89 @@
 import React from 'react';
-import { Image, Pressable } from 'react-native';
 import { Tabs, useRouter } from 'expo-router';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Image, Pressable, View, Platform } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const PURPLE = '#6B3FD1';
+// Brand
+const PURPLE = '#6B35DB';
+const INACTIVE = '#9AA0A6';
+
+// ---- PNG sources (adjust to your preferred files) ----
+// Use exact filenames, including spaces, since Metro requires static strings.
+const ChatPNG = require('../assets/icons/ChatAi ICON.png');
+const LibraryPNG = require('../assets/icons/CodewordLogo.png'); // placeholder "book-ish" mark
+const MoodPNG = require('../assets/icons/FistBumpIcon002.png'); // placeholder for mood
+const ProfilePNG = require('../assets/icons/AlliesIcon.png'); // placeholder for profile
+const SemicolonPNG = require('../assets/icons/SemicolonIconPurple.png');
+
+// Small wrapper so we don't repeat styles
+function TabPng({ src, color, size = 26 }: { src: any; color: string; size?: number }) {
+  return (
+    <Image
+      source={src}
+      // If your PNGs are single-color glyphs, tint works great for active/inactive.
+      // If an icon is multi-color and you don't want tinting, remove the tintColor line.
+      style={{ width: size, height: size, resizeMode: 'contain', tintColor: color }}
+    />
+  );
+}
+
+function CenterTabButton(props: any) {
+  const router = useRouter();
+
+  return (
+    <Pressable
+      accessibilityLabel="Get help"
+      onPress={() => router.push('/help')}
+      style={[
+        {
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 68,
+          height: 68,
+          borderRadius: 34,
+          backgroundColor: 'white',
+          shadowColor: '#000',
+          shadowOpacity: 0.18,
+          shadowRadius: 10,
+          shadowOffset: { width: 0, height: 4 },
+          elevation: 6,
+          // Tweak this to nudge vertical alignment over the tab bar:
+          transform: [{ translateY: Platform.OS === 'ios' ? -4 : -2 }],
+        },
+        props.style,
+      ]}
+      hitSlop={16}
+    >
+      <Image
+        source={SemicolonPNG}
+        style={{ width: 46, height: 46, resizeMode: 'contain', tintColor: PURPLE }}
+      />
+    </Pressable>
+  );
+}
 
 export default function TabLayout() {
-  const router = useRouter();
+  const { bottom } = useSafeAreaInsets();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarShowLabel: true,
         tabBarActiveTintColor: PURPLE,
-        tabBarInactiveTintColor: '#9BA1A6',
-        tabBarLabelStyle: { fontSize: 12 },
+        tabBarInactiveTintColor: INACTIVE,
+        tabBarLabelStyle: { fontSize: 12, marginTop: 4 },
         tabBarStyle: {
-          position: 'absolute',
-          height: 84,
-          borderTopLeftRadius: 24,
-          borderTopRightRadius: 24,
-          backgroundColor: 'rgba(255,255,255,0.96)',
+          height: bottom + 72,
+          paddingTop: 10,
+          paddingBottom: bottom + 12,
+          backgroundColor: 'white',
+          borderTopWidth: 0,
+          shadowColor: '#000',
+          shadowOpacity: 0.08,
+          shadowRadius: 12,
+          shadowOffset: { width: 0, height: -2 },
+          elevation: 8,
         },
       }}
     >
@@ -28,45 +91,26 @@ export default function TabLayout() {
         name="chat"
         options={{
           title: 'Chat',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="message-text-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabPng src={ChatPNG} color={color} />,
         }}
       />
+
       <Tabs.Screen
         name="library"
         options={{
           title: 'Library',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="book-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabPng src={LibraryPNG} color={color} />,
         }}
       />
 
-      {/* Center "semicolon" – always purple, bigger, routes to /help */}
+      {/* Center "semicolon" pseudo-tab (no label) */}
       <Tabs.Screen
         name="codeword"
         options={{
           title: '',
-          tabBarButton: (props) => (
-            <Pressable
-              {...props}
-              onPress={() => router.push('/help')}
-              style={[
-                props.style,
-                {
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transform: [{ translateY: -12 }],
-                },
-              ]}
-            >
-              <Image
-                source={require('../../assets/icons/SemicolonIconPurple.png')}
-                style={{ width: 36, height: 36, resizeMode: 'contain' }}
-              />
-            </Pressable>
-          ),
+          tabBarLabel: () => null,
+          tabBarIcon: () => null,
+          tabBarButton: (props) => <CenterTabButton {...props} />,
         }}
       />
 
@@ -74,18 +118,15 @@ export default function TabLayout() {
         name="mood"
         options={{
           title: 'Mood',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="happy-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabPng src={MoodPNG} color={color} />,
         }}
       />
+
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-circle-outline" size={size} color={color} />
-          ),
+          tabBarIcon: ({ color }) => <TabPng src={ProfilePNG} color={color} />,
         }}
       />
     </Tabs>
