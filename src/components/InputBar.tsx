@@ -27,6 +27,16 @@ export default function InputBar({ onSend }: { onSend: (t: string) => void }) {
           placeholder="Type a message..."
           placeholderTextColor={tokens.colors.gray}
           style={styles.input}
+          multiline={false}
+          blurOnSubmit={true}
+          returnKeyType="send"
+          enablesReturnKeyAutomatically
+          onSubmitEditing={() => {
+            if (text.trim()) {
+              onSend(text.trim());
+              setText('');
+            }
+          }}
         />
         <Pressable
           onPress={() => {
