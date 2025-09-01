@@ -1,55 +1,41 @@
-// app/(tabs)/chat.tsx (essentials only)
 import React, { useState } from 'react';
-import { View, Text, ScrollView } from 'react-native';
-import GradientScreen from '../../src/components/GradientScreen';
-import BrandHeader from '../../src/components/BrandHeader';
+import { ScrollView, View } from 'react-native';
+import ScreenShell from '../../src/components/ScreenShell';
+import MessageBubble from '../../src/components/MessageBubble';
 import InputBar from '../../src/components/InputBar';
-import { colors, radii, space, type } from '../../src/theme/tokens';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-function Bubble({ role, children }: { role: 'coach' | 'user'; children: React.ReactNode }) {
-  const bg = role === 'coach' ? colors.ui.white : colors.brand.purpleDeep;
-  const fg = role === 'coach' ? colors.text.primary : colors.text.onPurple;
-  const align = role === 'coach' ? 'flex-start' : 'flex-end';
-  return (
-    <View style={{ alignItems: align, marginBottom: space[12] }}>
-      <View
-        style={{
-          backgroundColor: bg,
-          borderRadius: radii.lg,
-          paddingHorizontal: space[16],
-          paddingVertical: space[12],
-          maxWidth: '86%',
-          shadowColor: '#000',
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 2 },
-        }}
-      >
-        <Text style={[type.chat, { color: fg }]}>{children}</Text>
-      </View>
-    </View>
-  );
-}
+export default function Chat() {
+  const [msgs, setMsgs] = useState([
+    {
+      id: 'sys1',
+      role: 'ai',
+      text: "Hi Eric, I'm your Codeword AI coach, here to support you emotionally, detect crises, and help you navigate challenging responses from your ally.",
+    },
+    { id: 'u1', role: 'user', text: "I'm feeling overwhelmed and need someone to talk to." },
+    {
+      id: 'ai1',
+      role: 'ai',
+      text: "I'm really sorry you're feeling overwhelmed. You don't have to carry all of this alone. Would you feel comfortable telling me a bit more about what's been going on or what's weighing on you most right now?",
+    },
+  ] as { id: string; role: 'user' | 'ai'; text: string }[]);
 
-export default function ChatScreen() {
-  const [text, setText] = useState('');
-  const insets = useSafeAreaInsets();
-  const tabH = useBottomTabBarHeight();
+  const onSend = (t: string) =>
+    setMsgs((prev) => [...prev, { id: String(Date.now()), role: 'user', text: t }]);
+
   return (
-    <GradientScreen>
-      <BrandHeader />
+    <ScreenShell>
       <ScrollView
-        contentContainerStyle={{ padding: space[16], paddingBottom: tabH + insets.bottom + 120 }}
+        contentContainerStyle={{ paddingBottom: 16 }}
         showsVerticalScrollIndicator={false}
       >
-        <Bubble role="coach">Hi Eric, I'm your Codeword AI coach…</Bubble>
-        <Bubble role="user">I'm feeling overwhelmed and need someone to talk to.</Bubble>
-        <Bubble role="coach">I'm really sorry you're feeling overwhelmed…</Bubble>
+        <View style={{ height: 8 }} />
+        {msgs.map((m) => (
+          <MessageBubble key={m.id} role={m.role}>
+            {m.text}
+          </MessageBubble>
+        ))}
       </ScrollView>
-
-      <InputBar value={text} onChangeText={setText} onSend={() => setText('')} />
-    </GradientScreen>
+      <InputBar onSend={onSend} />
+    </ScreenShell>
   );
 }

@@ -1,60 +1,70 @@
-// src/components/InputBar.tsx
-import React from 'react';
-import { View, TextInput, Pressable, Text } from 'react-native';
-import { colors, radii, space, type } from '../theme/tokens';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useState } from 'react';
+import {
+  View,
+  TextInput,
+  StyleSheet,
+  Pressable,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { tokens } from '../theme/tokens';
 
-export default function InputBar({
-  value,
-  onChangeText,
-  onSend,
-}: {
-  value: string;
-  onChangeText: (t: string) => void;
-  onSend: () => void;
-}) {
-  const insets = useSafeAreaInsets();
+export default function InputBar({ onSend }: { onSend: (t: string) => void }) {
+  const [text, setText] = useState('');
   const tabH = useBottomTabBarHeight();
+  const insets = useSafeAreaInsets();
+  const bottomPad = (insets.bottom || 8) + tabH + 6;
+
   return (
-    <View style={{ paddingHorizontal: space[16], paddingBottom: insets.bottom + tabH + 4 }}>
-      <View
-        style={{
-          backgroundColor: colors.ui.white,
-          borderRadius: radii.lg,
-          paddingLeft: space[16],
-          paddingRight: space[12],
-          paddingVertical: space[10],
-          flexDirection: 'row',
-          alignItems: 'center',
-          shadowColor: '#000',
-          shadowOpacity: 0.08,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 2 },
-        }}
-      >
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <View style={[styles.row, { marginBottom: bottomPad }]}>
         <TextInput
+          value={text}
+          onChangeText={setText}
           placeholder="Type a message..."
-          placeholderTextColor="rgba(0,0,0,0.35)"
-          value={value}
-          onChangeText={onChangeText}
-          style={[{ flex: 1, color: colors.text.primary }, type.body]}
+          placeholderTextColor={tokens.colors.gray}
+          style={styles.input}
         />
         <Pressable
-          onPress={onSend}
-          style={{
-            backgroundColor: colors.brand.purple,
-            width: 40,
-            height: 40,
-            borderRadius: radii.pill,
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginLeft: space[8],
+          onPress={() => {
+            if (text.trim()) {
+              onSend(text.trim());
+              setText('');
+            }
           }}
+          style={styles.send}
         >
-          <Text style={{ color: colors.text.onPurple, fontSize: 18 }}>➤</Text>
+          <Image
+            source={require('../../assets/icons/brand/SendChevron.png')}
+            style={{ width: 22, height: 22, tintColor: '#fff' }}
+          />
         </Pressable>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'center' },
+  input: {
+    flex: 1,
+    backgroundColor: tokens.colors.inputBg,
+    borderRadius: 24,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    marginRight: 10,
+    fontSize: 16,
+    color: tokens.colors.ink,
+  },
+  send: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: tokens.colors.brand,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
