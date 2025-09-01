@@ -2,6 +2,13 @@ import React from 'react';
 import { View, Text, Pressable, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 
+// Export options for the screen header
+export const options = {
+  title: 'Get Help',
+  // Can override with custom header if needed:
+  // header: (props) => <BrandHeader title="Get Help" showBack />,
+};
+
 function PrimaryButton({ title, onPress }: { title: string; onPress: () => void }) {
   return (
     <Pressable
@@ -43,21 +50,7 @@ export default function HelpScreen() {
   const demo = (msg: string) => Alert.alert('Demo', msg);
 
   return (
-    <View style={{ flex: 1, padding: 16, backgroundColor: '#EAF3F3' }}>
-      <View
-        style={{
-          backgroundColor: '#5A2AA7',
-          paddingTop: 12,
-          paddingBottom: 18,
-          alignItems: 'center',
-          borderBottomLeftRadius: 24,
-          borderBottomRightRadius: 24,
-          marginBottom: 16,
-        }}
-      >
-        <Text style={{ color: 'white', fontSize: 24, fontWeight: '700' }}>Get Help</Text>
-      </View>
-
+    <View style={{ flex: 1, padding: 16, paddingTop: 120, backgroundColor: '#EAF3F3' }}>
       <Text style={{ color: '#3A2F57', marginBottom: 16 }}>
         Choose an option. (Demo actions for now—no accidental calls.)
       </Text>
