@@ -5,8 +5,10 @@
     "scheme": "codeword",
     "plugins": ["expo-router", "expo-font"],
     "extra": {
-      "apiBase": "http://localhost:9988",
-      "wsUrl": "ws://localhost:9988/ws"
+      "API_BASE_URL": "http://localhost:8000",
+      "WS_URL": "ws://localhost:8000/ws/chat",
+      "CLIENT_NAME": "codeword-app",
+      "CLIENT_VERSION": "0.1.0"
     }
   }
 }

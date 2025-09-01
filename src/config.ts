@@ -1,9 +1,17 @@
+import Constants from 'expo-constants';
+const extra = (Constants.expoConfig as any)?.extra ?? {};
+
+export const API_BASE_URL = extra.API_BASE_URL as string;
+export const WS_URL = extra.WS_URL as string;
+export const CLIENT_NAME = extra.CLIENT_NAME ?? 'codeword-app';
+export const CLIENT_VER = extra.CLIENT_VERSION ?? '0.1.0';
+
+// Legacy CFG for backward compatibility
 export const CFG = {
-  WS_URL: process.env.EXPO_PUBLIC_WS_URL || 'ws://localhost:8000/ws/chat',
-  // When true, we echo back demo text if WS not available
-  DEMO_MODE: (process.env.EXPO_PUBLIC_DEMO_MODE || 'true') === 'true',
+  WS_URL: WS_URL || 'ws://localhost:8000/ws/chat',
+  DEMO_MODE: true,
   HEADERS: {
-    'X-Client': 'codeword-app',
-    'X-Version': '1.0.0',
+    'X-Client': CLIENT_NAME,
+    'X-Version': CLIENT_VER,
   },
 };
