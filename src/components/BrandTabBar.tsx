@@ -52,7 +52,7 @@ export default function BrandTabBar({ state, descriptors, navigation }: BottomTa
           | ((props: { focused: boolean; color: string; size: number }) => React.ReactNode)
           | undefined;
 
-        const color = isFocused ? colors.brand.purple : '#C7BCD9';
+        const labelColor = isFocused ? colors.brand.purple : '#C7BCD9';
 
         return (
           <Pressable
@@ -63,10 +63,10 @@ export default function BrandTabBar({ state, descriptors, navigation }: BottomTa
             onLongPress={onLongPress}
             style={styles.item}
           >
-            <View style={styles.iconBox}>
-              {maybeIcon ? maybeIcon({ focused: isFocused, color, size: 24 }) : null}
+            <View style={[styles.iconBox, { opacity: isFocused ? 1 : 0.6 }]}>
+              {maybeIcon ? maybeIcon({ focused: isFocused, color: labelColor, size: 24 }) : null}
             </View>
-            <Text numberOfLines={1} style={[styles.label, { color }]}>
+            <Text numberOfLines={1} style={[styles.label, { color: labelColor }]}>
               {options.title ?? route.name}
             </Text>
           </Pressable>

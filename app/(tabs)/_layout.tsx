@@ -22,8 +22,8 @@ export default function TabLayout() {
         name="chat"
         options={{
           title: 'Chat',
-          tabBarIcon: ({ color, size }) => (
-            <Image source={TabChatPNG} style={{ width: size, height: size, tintColor: color }} />
+          tabBarIcon: ({ size }) => (
+            <Image source={TabChatPNG} style={{ width: size, height: size }} />
           ),
         }}
       />
@@ -31,8 +31,8 @@ export default function TabLayout() {
         name="library"
         options={{
           title: 'Library',
-          tabBarIcon: ({ color, size }) => (
-            <Image source={TabLibraryPNG} style={{ width: size, height: size, tintColor: color }} />
+          tabBarIcon: ({ size }) => (
+            <Image source={TabLibraryPNG} style={{ width: size, height: size }} />
           ),
         }}
       />
@@ -51,8 +51,8 @@ export default function TabLayout() {
         name="mood"
         options={{
           title: 'Coach',
-          tabBarIcon: ({ color, size }) => (
-            <Image source={TabCoachPNG} style={{ width: size, height: size, tintColor: color }} />
+          tabBarIcon: ({ size }) => (
+            <Image source={TabCoachPNG} style={{ width: size, height: size }} />
           ),
         }}
       />
@@ -60,8 +60,8 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Image source={TabProfilePNG} style={{ width: size, height: size, tintColor: color }} />
+          tabBarIcon: ({ size }) => (
+            <Image source={TabProfilePNG} style={{ width: size, height: size }} />
           ),
         }}
       />
