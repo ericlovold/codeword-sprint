@@ -1,148 +1,134 @@
 import React from 'react';
-import { View, Text, Pressable, Image, StyleSheet } from 'react-native';
+import { View, Pressable, Image, Text, Platform, StyleSheet } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, space, type } from '../theme/tokens';
+import { colors, radii, space } from '../theme/tokens';
 
-const HomePNG = require('../../app/assets/icons/ChatAi ICON.png');
-const LibraryPNG = require('../../app/assets/icons/AiIcon.png');
-const SemicolonPNG = require('../../app/assets/icons/SemicolonIconPurple.png');
-const CoachPNG = require('../../app/assets/icons/FistBumpIcon002.png');
-const ProfilePNG = require('../../app/assets/icons/AlliesIcon.png');
-
-const TAB_CONFIG = {
-  chat: { icon: HomePNG, label: 'Home' },
-  library: { icon: LibraryPNG, label: 'Library' },
-  mood: { icon: CoachPNG, label: 'Coach' },
-  profile: { icon: ProfilePNG, label: 'Profile' },
-};
+const SEMICOLON = require('../../app/assets/icons/SemicolonIconPurple.png');
 
 export default function BrandTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const activeColor = colors.brand.purple;
-  const inactiveColor = '#C7BCD9';
+  const mid = Math.floor(state.routes.length / 2);
 
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          paddingBottom: insets.bottom,
-          borderTopColor: colors.ui.divider,
-        },
-      ]}
-    >
-      <View style={styles.tabContainer}>
-        {state.routes.map((route, index) => {
-          const { options } = descriptors[route.key];
-          const isFocused = state.index === index;
+    <View style={[styles.wrap, { paddingBottom: insets.bottom ? insets.bottom : 8 }]}>
+      <View style={styles.rail} />
 
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
+      {state.routes.map((route, index) => {
+        const { options } = descriptors[route.key];
+        const isFocused = state.index === index;
 
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name, route.params);
-            }
-          };
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+          if (!isFocused && !event.defaultPrevented) navigation.navigate(route.name);
+        };
 
-          const config = TAB_CONFIG[route.name as keyof typeof TAB_CONFIG];
+        const onLongPress = () => {
+          navigation.emit({ type: 'tabLongPress', target: route.key });
+        };
 
-          if (!config) return null;
-
+        // Center: big semicolon, always purple, no label
+        if (index === mid) {
           return (
             <Pressable
               key={route.key}
               accessibilityRole="button"
               accessibilityState={isFocused ? { selected: true } : {}}
-              accessibilityLabel={options.tabBarAccessibilityLabel}
-              testID={options.tabBarTestID}
               onPress={onPress}
-              style={styles.tab}
+              onLongPress={onLongPress}
+              style={styles.centerBtn}
             >
-              <Image
-                source={config.icon}
-                style={[styles.icon, { tintColor: isFocused ? activeColor : inactiveColor }]}
-              />
-              <Text style={[styles.label, { color: isFocused ? activeColor : inactiveColor }]}>
-                {config.label}
-              </Text>
+              <Image source={SEMICOLON} style={styles.semicolon} resizeMode="contain" />
             </Pressable>
           );
-        })}
+        }
 
-        {/* Center Semicolon Tab - Always Purple, Bigger, No Label */}
-        <Pressable
-          onPress={() => {
-            // Navigate to help screen using the parent navigator
-            navigation.getParent()?.navigate('help' as any);
-          }}
-          style={styles.centerTab}
-        >
-          <View style={styles.centerButton}>
-            <Image source={SemicolonPNG} style={styles.centerIcon} />
-          </View>
-        </Pressable>
-      </View>
+        // Non-center: use provided tabBarIcon or fall back to text label
+        const maybeIcon = options.tabBarIcon as
+          | ((props: { focused: boolean; color: string; size: number }) => React.ReactNode)
+          | undefined;
+
+        const color = isFocused ? colors.brand.purple : '#C7BCD9';
+
+        return (
+          <Pressable
+            key={route.key}
+            accessibilityRole="button"
+            accessibilityState={isFocused ? { selected: true } : {}}
+            onPress={onPress}
+            onLongPress={onLongPress}
+            style={styles.item}
+          >
+            <View style={styles.iconBox}>
+              {maybeIcon ? maybeIcon({ focused: isFocused, color, size: 24 }) : null}
+            </View>
+            <Text numberOfLines={1} style={[styles.label, { color }]}>
+              {options.title ?? route.name}
+            </Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.ui.white,
-    borderTopWidth: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: -2 },
-    elevation: 8,
-  },
-  tabContainer: {
+  wrap: {
     flexDirection: 'row',
-    height: 60,
-    alignItems: 'center',
-    paddingHorizontal: space[16],
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    paddingHorizontal: 18,
+    backgroundColor: colors.ui.white,
+    borderTopLeftRadius: radii.xl,
+    borderTopRightRadius: radii.xl,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.06,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: -4 },
+      },
+      android: { elevation: 12 },
+    }),
   },
-  tab: {
+  rail: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: colors.ui.divider,
+  },
+  item: {
+    height: 64,
+    minWidth: 64,
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: space[8],
   },
-  icon: {
-    width: 26,
+  iconBox: {
     height: 26,
-    marginBottom: space[4],
+    marginBottom: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   label: {
     fontSize: 12,
+    lineHeight: 14,
     fontWeight: '600',
   },
-  centerTab: {
-    position: 'absolute',
-    left: '50%',
-    marginLeft: -28,
-    top: -8,
-  },
-  centerButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+  centerBtn: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     backgroundColor: colors.ui.white,
-    justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: colors.brand.purple,
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 8,
+    justifyContent: 'center',
+    marginTop: -22, // lifts the semicolon into the curve
   },
-  centerIcon: {
-    width: 36,
-    height: 36,
-  },
+  semicolon: { width: 28, height: 40 }, // taller than others; always purple PNG
 });
