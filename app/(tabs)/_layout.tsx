@@ -1,7 +1,13 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'react-native';
 import BrandTabBar from '../../src/components/BrandTabBar';
+
+// Tab PNG icons
+const TabChatPNG = require('../assets/icons/tabs/TabChat.png');
+const TabLibraryPNG = require('../assets/icons/tabs/TabLibrary.png');
+const TabCoachPNG = require('../assets/icons/tabs/TabCoach.png');
+const TabProfilePNG = require('../assets/icons/tabs/TabProfile.png');
 
 export default function TabLayout() {
   return (
@@ -17,7 +23,7 @@ export default function TabLayout() {
         options={{
           title: 'Chat',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbubble-ellipses-outline" size={size} color={color} />
+            <Image source={TabChatPNG} style={{ width: size, height: size, tintColor: color }} />
           ),
         }}
       />
@@ -26,7 +32,7 @@ export default function TabLayout() {
         options={{
           title: 'Library',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="book-outline" size={size} color={color} />
+            <Image source={TabLibraryPNG} style={{ width: size, height: size, tintColor: color }} />
           ),
         }}
       />
@@ -46,7 +52,7 @@ export default function TabLayout() {
         options={{
           title: 'Coach',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="sparkles-outline" size={size} color={color} />
+            <Image source={TabCoachPNG} style={{ width: size, height: size, tintColor: color }} />
           ),
         }}
       />
@@ -55,7 +61,7 @@ export default function TabLayout() {
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person-outline" size={size} color={color} />
+            <Image source={TabProfilePNG} style={{ width: size, height: size, tintColor: color }} />
           ),
         }}
       />
