@@ -4,11 +4,11 @@ import { Image } from 'react-native';
 import BrandTabBar from '../../src/components/BrandTabBar';
 import BrandHeader from '../../src/components/BrandHeader';
 
-// Tab PNG icons - correct paths from app/(tabs) to app/assets
-const TabChatPNG = require('../assets/icons/tabs/TabChat.png');
-const TabLibraryPNG = require('../assets/icons/tabs/TabLibrary.png');
-const TabCoachPNG = require('../assets/icons/tabs/TabCoach.png');
-const TabProfilePNG = require('../assets/icons/tabs/TabProfile.png');
+// Tab PNG icons - assets is at repo root, need to go up two levels from app/(tabs)
+const TabChatPNG = require('../../assets/icons/tabs/TabChat.png');
+const TabLibraryPNG = require('../../assets/icons/tabs/TabLibrary.png');
+const TabCoachPNG = require('../../assets/icons/tabs/TabCoach.png');
+const TabProfilePNG = require('../../assets/icons/tabs/TabProfile.png');
 
 export default function TabLayout() {
   return (
