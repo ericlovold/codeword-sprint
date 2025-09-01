@@ -1,13 +1,13 @@
 import { Tabs } from 'expo-router';
-import BottomTabs from '../../src/components/BottomTabs';
+import CustomTabBar from '../../src/components/CustomTabBar';
 
 export default function TabLayout() {
   return (
-    <Tabs screenOptions={{ headerShown: false }} tabBar={(props) => <BottomTabs {...props} />}>
-      <Tabs.Screen name="chat" />
-      <Tabs.Screen name="library" />
-      <Tabs.Screen name="mood" />
-      <Tabs.Screen name="profile" />
+    <Tabs screenOptions={{ headerShown: false }} tabBar={(props) => <CustomTabBar {...props} />}>
+      <Tabs.Screen name="chat" options={{ tabBarLabel: 'Chat' }} />
+      <Tabs.Screen name="library" options={{ tabBarLabel: 'Guides' }} />
+      <Tabs.Screen name="mood" options={{ tabBarLabel: 'Coach' }} />
+      <Tabs.Screen name="profile" options={{ tabBarLabel: 'Profile' }} />
     </Tabs>
   );
 }
