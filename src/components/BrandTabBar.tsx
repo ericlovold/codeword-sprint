@@ -2,9 +2,17 @@ import React from 'react';
 import { View, Pressable, Image, Text, Platform, StyleSheet } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radii, space } from '../theme/tokens';
+import { colors, radii } from '../theme/tokens';
 
-const SEMICOLON = require('../../app/assets/icons/SemicolonIconPurple.png');
+// --- Precise dimensions from Figma ---
+const TAB_H = 84; // bar height from Figma (~82–88)
+const SIDE_ICON = 26; // side icon size
+const CENTER_SIZE = 72; // floating circle diameter
+const LIFT = -20; // how much the center floats up
+const SEMI_W = 30; // semicolon glyph width
+const SEMI_H = 46; // semicolon glyph height
+
+const SEMICOLON = require('../../app/assets/icons/White Semicolon.png');
 
 export default function BrandTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
@@ -42,7 +50,11 @@ export default function BrandTabBar({ state, descriptors, navigation }: BottomTa
               onLongPress={onLongPress}
               style={styles.centerBtn}
             >
-              <Image source={SEMICOLON} style={styles.semicolon} resizeMode="contain" />
+              <Image
+                source={SEMICOLON}
+                style={[styles.semicolon, { tintColor: colors.brand.purple }]}
+                resizeMode="contain"
+              />
             </Pressable>
           );
         }
@@ -64,7 +76,9 @@ export default function BrandTabBar({ state, descriptors, navigation }: BottomTa
             style={styles.item}
           >
             <View style={[styles.iconBox, { opacity: isFocused ? 1 : 0.6 }]}>
-              {maybeIcon ? maybeIcon({ focused: isFocused, color: labelColor, size: 24 }) : null}
+              {maybeIcon
+                ? maybeIcon({ focused: isFocused, color: labelColor, size: SIDE_ICON })
+                : null}
             </View>
             <Text numberOfLines={1} style={[styles.label, { color: labelColor }]}>
               {options.title ?? route.name}
@@ -78,10 +92,12 @@ export default function BrandTabBar({ state, descriptors, navigation }: BottomTa
 
 const styles = StyleSheet.create({
   wrap: {
+    height: TAB_H,
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
     paddingHorizontal: 18,
+    paddingTop: 8,
     backgroundColor: colors.ui.white,
     borderTopLeftRadius: radii.xl,
     borderTopRightRadius: radii.xl,
@@ -104,15 +120,16 @@ const styles = StyleSheet.create({
     backgroundColor: colors.ui.divider,
   },
   item: {
-    height: 64,
+    height: TAB_H,
     minWidth: 64,
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconBox: {
-    height: 26,
-    marginBottom: 4,
+    height: SIDE_ICON,
+    width: SIDE_ICON,
+    marginBottom: 6,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -122,13 +139,27 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   centerBtn: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
+    width: CENTER_SIZE,
+    height: CENTER_SIZE,
+    borderRadius: CENTER_SIZE / 2,
     backgroundColor: colors.ui.white,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: -22, // lifts the semicolon into the curve
+    marginTop: LIFT, // pulls into the curve
+    // subtle lift
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.12,
+        shadowRadius: 12,
+        shadowOffset: { width: 0, height: 6 },
+      },
+      android: { elevation: 16 },
+    }),
   },
-  semicolon: { width: 28, height: 40 }, // taller than others; always purple PNG
+  semicolon: {
+    width: SEMI_W,
+    height: SEMI_H,
+    resizeMode: 'contain',
+  },
 });
