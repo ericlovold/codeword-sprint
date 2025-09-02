@@ -1,42 +1,34 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { tokens } from '../theme/tokens';
+import { colors, radii, spacing } from '../theme/tokens';
 
-export default function BrandHeader({ title = 'Codeword' }: { title?: string }) {
+export default function BrandHeader() {
   const insets = useSafeAreaInsets();
+  const H = 88 + insets.top;
+
   return (
-    <View style={[styles.wrap, { paddingTop: insets.top + 10 }]}>
-      <View style={styles.bar}>
-        <Text style={styles.title}>{title}</Text>
-        <Image
-          source={require('../../assets/icons/brand/SemicolonIconPurple.png')}
-          style={{
-            width: 16,
-            height: 16,
-            resizeMode: 'contain',
-            marginLeft: 6,
-            tintColor: '#A7F3E9',
-          }}
-        />
-      </View>
-      <View style={styles.divider} />
+    <View style={[styles.wrap, { paddingTop: insets.top, height: H }]}>
+      <Text style={styles.title}>
+        Codeword <Text style={styles.mark}>;</Text>
+      </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: {
-    backgroundColor: tokens.colors.brand,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
-  },
-  bar: {
+    backgroundColor: colors.brand,
+    borderBottomLeftRadius: radii.xl,
+    borderBottomRightRadius: radii.xl,
     alignItems: 'center',
-    paddingVertical: 14,
-    flexDirection: 'row',
     justifyContent: 'center',
   },
-  title: { color: tokens.colors.brandOn, fontSize: 22, fontWeight: '700', letterSpacing: 0.3 },
-  divider: { height: 8, opacity: 0 }, // keeps spacing like figma cap
+  title: {
+    color: 'white',
+    fontSize: 24,
+    fontWeight: '700',
+    letterSpacing: 0.25,
+  },
+  mark: { color: '#6DE7D8' },
 });
