@@ -1,21 +1,14 @@
-import React from 'react';
+// app/(tabs)/_layout.tsx
 import { Tabs } from 'expo-router';
-import BrandHeader from '../../src/components/BrandHeader';
-import CWTabBar from '../../src/components/CWTabBar';
+import BrandHeader from '../../src/ui/BrandHeader';
+import CWTabBar from '../../src/ui/CWTabBar';
 
-const getIcon = (routeName: string, focused: boolean) => {
-  switch (routeName) {
-    case 'chat':
-      return require('../../assets/icons/tabs/TabChat.png');
-    case 'library':
-      return require('../../assets/icons/tabs/TabLibrary.png');
-    case 'coach':
-      return require('../../assets/icons/tabs/TabCoach.png');
-    case 'profile':
-      return require('../../assets/icons/tabs/TabProfile.png');
-    default:
-      return require('../../assets/icons/tabs/TabChat.png');
-  }
+const iconMap: Record<string, any> = {
+  codeword: require('../../assets/icons/tabs/TabChat.png'),
+  library: require('../../assets/icons/tabs/TabLibrary.png'),
+  launchpad: require('../../assets/icons/tabs/TabSemicolon.png'),
+  coach: require('../../assets/icons/tabs/TabCoach.png'),
+  profile: require('../../assets/icons/tabs/TabProfile.png'),
 };
 
 export default function TabLayout() {
@@ -23,15 +16,14 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         header: () => <BrandHeader />,
-        tabBar: (props) => <CWTabBar {...props} getIcon={getIcon} />,
-        tabBarShowLabel: false,
+        tabBar: (props) => <CWTabBar {...props} getIcon={(name, focused) => iconMap[name]} />,
       }}
     >
-      <Tabs.Screen name="chat" />
-      <Tabs.Screen name="library" />
-      <Tabs.Screen name="launchpad" />
-      <Tabs.Screen name="coach" />
-      <Tabs.Screen name="profile" />
+      <Tabs.Screen name="codeword" options={{ title: 'Codeword' }} />
+      <Tabs.Screen name="library" options={{ title: 'Guides' }} />
+      <Tabs.Screen name="launchpad" options={{ title: ' ' }} />
+      <Tabs.Screen name="coach" options={{ title: 'Coach' }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
     </Tabs>
   );
 }
