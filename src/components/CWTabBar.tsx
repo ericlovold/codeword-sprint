@@ -1,58 +1,36 @@
-import React from 'react';
-import { View, Pressable, Image, Text, StyleSheet, LayoutChangeEvent } from 'react-native';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+// src/ui/CWTabBar.tsx
+import { View, Pressable, Image, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radii, shadows, spacing, dims } from '../theme/tokens';
+import { colors, radii, spacing, dims } from '../theme/tokens';
 
-export default function CWTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+type Props = {
+  state: any;
+  descriptors: any;
+  navigation: any;
+  getIcon: (routeName: string, focused: boolean) => any;
+};
+
+export default function CWTabBar({ state, descriptors, navigation, getIcon }: Props) {
   const insets = useSafeAreaInsets();
-  const [barW, setBarW] = React.useState(0);
-
-  const onLayout = (e: LayoutChangeEvent) => setBarW(e.nativeEvent.layout.width);
-  const centerLeft = (barW - dims.FAB) / 2;
 
   return (
-    <View style={{ paddingBottom: insets.bottom, backgroundColor: 'transparent' }}>
-      <View onLayout={onLayout} style={styles.bar}>
-        {state.routes.map((route, idx) => {
-          const { options } = descriptors[route.key];
-          const focused = state.index === idx;
-          // leave middle slot empty – we'll draw the center button over it
-          if (options.tabBarLabel === 'Launchpad')
-            return <View key={route.key} style={{ width: dims.FAB }} />;
+    <View style={{ height: dims.TAB_HEIGHT + insets.bottom + spacing.xl }}>
+      {/* Bar surface */}
+      <View style={[styles.bar, { bottom: insets.bottom + spacing.md }]}>
+        {state.routes.map((route: any, index: number) => {
+          // skip center slot (we draw FAB there)
+          if (index === 2) return <View key={route.key} style={{ width: dims.FAB }} />;
 
-          const label = (options.tabBarLabel ?? options.title ?? route.name) as string;
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
-            if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
-          };
-
-          const icon = options.tabBarIcon
-            ? options.tabBarIcon({
-                focused,
-                color: focused ? colors.tabIconActive : colors.tabIcon,
-                size: 24,
-              })
-            : null;
+          const isFocused = state.index === index;
+          const onPress = () => navigation.navigate(route.name);
 
           return (
-            <Pressable
-              key={route.key}
-              onPress={onPress}
-              style={styles.item}
-              accessibilityRole="button"
-            >
-              {icon}
-              <Text
-                style={[styles.label, focused && { color: colors.tabIconActive }]}
-                numberOfLines={1}
-              >
-                {label}
-              </Text>
+            <Pressable key={route.key} onPress={onPress} style={styles.tabBtn} hitSlop={10}>
+              <Image
+                source={getIcon(route.name, isFocused)}
+                style={[styles.icon, { opacity: isFocused ? 1 : 0.55 }]}
+                resizeMode="contain"
+              />
             </Pressable>
           );
         })}
@@ -60,13 +38,18 @@ export default function CWTabBar({ state, descriptors, navigation }: BottomTabBa
 
       {/* Center FAB */}
       <Pressable
-        onPress={() => navigation.navigate('chat' as never)}
-        style={[styles.center, { left: centerLeft }]}
-        accessibilityLabel="Launchpad"
+        onPress={() => navigation.navigate('launchpad')}
+        style={[
+          styles.fab,
+          {
+            bottom: insets.bottom + dims.TAB_HEIGHT - dims.FAB / 2,
+          },
+        ]}
+        hitSlop={6}
       >
         <Image
-          source={require('../../app/assets/icons/semicolon.png')}
-          style={{ width: 36, height: 36, tintColor: 'white' }}
+          source={require('../../assets/icons/semicolon.png')}
+          style={{ width: 34, height: 34, tintColor: colors.white }}
         />
       </Pressable>
     </View>
@@ -75,37 +58,38 @@ export default function CWTabBar({ state, descriptors, navigation }: BottomTabBa
 
 const styles = StyleSheet.create({
   bar: {
-    marginHorizontal: spacing.lg,
-    marginTop: dims.FAB / 2, // give room for the floating button
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radii.xl,
-    borderTopRightRadius: radii.xl,
+    position: 'absolute',
+    left: spacing.xl,
+    right: spacing.xl,
     height: dims.TAB_HEIGHT,
+    backgroundColor: colors.surface,
+    borderRadius: radii.xl,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    ...shadows.tab,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
   },
-  item: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
-    width: 80,
-  },
-  label: {
-    fontSize: 12,
-    color: colors.tabIcon,
-  },
-  center: {
+  tabBtn: { width: 56, alignItems: 'center', justifyContent: 'center' },
+  icon: { width: 28, height: 28 },
+  fab: {
     position: 'absolute',
-    bottom: dims.TAB_HEIGHT - dims.FAB / 2, // half overlaps the bar
+    left: '50%',
+    marginLeft: -dims.FAB / 2,
     width: dims.FAB,
     height: dims.FAB,
     borderRadius: dims.FAB / 2,
     backgroundColor: colors.purple,
     alignItems: 'center',
     justifyContent: 'center',
-    ...shadows.fab,
-    zIndex: 50,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 12,
+    zIndex: 2,
   },
 });

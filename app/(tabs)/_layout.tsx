@@ -1,78 +1,37 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Image } from 'react-native';
 import BrandHeader from '../../src/components/BrandHeader';
 import CWTabBar from '../../src/components/CWTabBar';
-import { colors } from '../../src/theme/tokens';
+
+const getIcon = (routeName: string, focused: boolean) => {
+  switch (routeName) {
+    case 'chat':
+      return require('../../assets/icons/tabs/TabChat.png');
+    case 'library':
+      return require('../../assets/icons/tabs/TabLibrary.png');
+    case 'coach':
+      return require('../../assets/icons/tabs/TabCoach.png');
+    case 'profile':
+      return require('../../assets/icons/tabs/TabProfile.png');
+    default:
+      return require('../../assets/icons/tabs/TabChat.png');
+  }
+};
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
         header: () => <BrandHeader />,
-        tabBar: (props) => <CWTabBar {...props} />,
-        tabBarShowLabel: true,
+        tabBar: (props) => <CWTabBar {...props} getIcon={getIcon} />,
+        tabBarShowLabel: false,
       }}
     >
-      <Tabs.Screen
-        name="chat"
-        options={{
-          title: 'Codeword',
-          tabBarLabel: 'Codeword',
-          tabBarIcon: ({ color }) => (
-            <Image
-              source={require('../../assets/icons/tabs/TabChat.png')}
-              style={{ width: 22, height: 22, tintColor: color }}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="library"
-        options={{
-          title: 'Guides',
-          tabBarLabel: 'Guides',
-          tabBarIcon: ({ color }) => (
-            <Image
-              source={require('../../assets/icons/tabs/TabLibrary.png')}
-              style={{ width: 22, height: 22, tintColor: color }}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="launchpad"
-        options={{
-          tabBarLabel: 'Launchpad', // middle slot; label hidden by custom bar
-          tabBarIcon: () => null,
-        }}
-      />
-      <Tabs.Screen
-        name="coach"
-        options={{
-          title: 'Coach',
-          tabBarLabel: 'Coach',
-          tabBarIcon: ({ color }) => (
-            <Image
-              source={require('../../assets/icons/tabs/TabCoach.png')}
-              style={{ width: 22, height: 22, tintColor: color }}
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: 'Profile',
-          tabBarLabel: 'Profile',
-          tabBarIcon: ({ color }) => (
-            <Image
-              source={require('../../assets/icons/tabs/TabProfile.png')}
-              style={{ width: 22, height: 22, tintColor: color }}
-            />
-          ),
-        }}
-      />
+      <Tabs.Screen name="chat" />
+      <Tabs.Screen name="library" />
+      <Tabs.Screen name="launchpad" />
+      <Tabs.Screen name="coach" />
+      <Tabs.Screen name="profile" />
     </Tabs>
   );
 }
