@@ -1,16 +1,14 @@
-import React from 'react';
+// src/ui/BrandHeader.tsx
 import { View, Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radii } from '../theme/tokens';
+import { colors, radii, spacing } from '../theme/tokens';
 
 export default function BrandHeader() {
   const insets = useSafeAreaInsets();
-  const H = 88 + insets.top;
-
   return (
-    <View style={[styles.wrap, { paddingTop: insets.top, height: H }]}>
-      <Text style={styles.title}>
-        Codeword <Text style={styles.mark}>;</Text>
+    <View style={[styles.wrap, { paddingTop: insets.top + spacing.lg }]}>
+      <Text style={styles.logo}>
+        Codeword <Text style={styles.semi}>;</Text>
       </Text>
     </View>
   );
@@ -21,14 +19,14 @@ const styles = StyleSheet.create({
     backgroundColor: colors.purple,
     borderBottomLeftRadius: radii.xl,
     borderBottomRightRadius: radii.xl,
+    paddingBottom: spacing.md,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  title: {
+  logo: {
     color: colors.white,
-    fontSize: 24,
-    fontWeight: '700',
-    letterSpacing: 0.25,
+    fontSize: 28,
+    fontWeight: '800',
+    letterSpacing: 0.3,
   },
-  mark: { color: colors.mint },
+  semi: { color: colors.mint },
 });
