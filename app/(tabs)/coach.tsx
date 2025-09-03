@@ -11,7 +11,7 @@ export default function CoachScreen() {
 
   return (
     <LinearGradient
-      colors={[colors.gradTop, colors.gradMid, colors.gradBot]}
+      colors={[colors.gradA, colors.gradB]}
       start={{ x: 0.2, y: 0.0 }}
       end={{ x: 0.9, y: 1.0 }}
       style={{ flex: 1 }}

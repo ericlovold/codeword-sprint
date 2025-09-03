@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radii, spacing } from '../theme/tokens';
+import { colors, radii } from '../theme/tokens';
 
 export default function BrandHeader() {
   const insets = useSafeAreaInsets();
@@ -18,17 +18,17 @@ export default function BrandHeader() {
 
 const styles = StyleSheet.create({
   wrap: {
-    backgroundColor: colors.brand,
+    backgroundColor: colors.purple,
     borderBottomLeftRadius: radii.xl,
     borderBottomRightRadius: radii.xl,
     alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    color: 'white',
+    color: colors.white,
     fontSize: 24,
     fontWeight: '700',
     letterSpacing: 0.25,
   },
-  mark: { color: '#6DE7D8' },
+  mark: { color: colors.mint },
 });

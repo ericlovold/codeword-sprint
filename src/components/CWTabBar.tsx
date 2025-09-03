@@ -2,16 +2,14 @@ import React from 'react';
 import { View, Pressable, Image, Text, StyleSheet, LayoutChangeEvent } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radii, shadows, spacing } from '../theme/tokens';
-
-const CENTER = 76; // central button diameter
+import { colors, radii, shadows, spacing, dims } from '../theme/tokens';
 
 export default function CWTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const [barW, setBarW] = React.useState(0);
 
   const onLayout = (e: LayoutChangeEvent) => setBarW(e.nativeEvent.layout.width);
-  const centerLeft = (barW - CENTER) / 2;
+  const centerLeft = (barW - dims.FAB) / 2;
 
   return (
     <View style={{ paddingBottom: insets.bottom, backgroundColor: 'transparent' }}>
@@ -21,7 +19,7 @@ export default function CWTabBar({ state, descriptors, navigation }: BottomTabBa
           const focused = state.index === idx;
           // leave middle slot empty – we'll draw the center button over it
           if (options.tabBarLabel === 'Launchpad')
-            return <View key={route.key} style={{ width: CENTER }} />;
+            return <View key={route.key} style={{ width: dims.FAB }} />;
 
           const label = (options.tabBarLabel ?? options.title ?? route.name) as string;
           const onPress = () => {
@@ -78,11 +76,11 @@ export default function CWTabBar({ state, descriptors, navigation }: BottomTabBa
 const styles = StyleSheet.create({
   bar: {
     marginHorizontal: spacing.lg,
-    marginTop: CENTER / 2, // give room for the floating button
-    backgroundColor: colors.tabBG,
+    marginTop: dims.FAB / 2, // give room for the floating button
+    backgroundColor: colors.surface,
     borderTopLeftRadius: radii.xl,
     borderTopRightRadius: radii.xl,
-    height: 74,
+    height: dims.TAB_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
@@ -100,11 +98,11 @@ const styles = StyleSheet.create({
   },
   center: {
     position: 'absolute',
-    bottom: 74 - CENTER / 2, // half overlaps the bar
-    width: CENTER,
-    height: CENTER,
-    borderRadius: CENTER / 2,
-    backgroundColor: colors.brand,
+    bottom: dims.TAB_HEIGHT - dims.FAB / 2, // half overlaps the bar
+    width: dims.FAB,
+    height: dims.FAB,
+    borderRadius: dims.FAB / 2,
+    backgroundColor: colors.purple,
     alignItems: 'center',
     justifyContent: 'center',
     ...shadows.fab,

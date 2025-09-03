@@ -1,42 +1,62 @@
+// src/theme/tokens.ts
 export const colors = {
-  brand: '#6F34D3', // Codeword purple (tweak if needed)
-  brandDark: '#5A27B0',
+  purple: '#6E2DD0', // Brand Purple
+  purpleDark: '#5923A8',
+  mint: '#4BE3C1', // Semicolon accent
+  surface: '#F7F3FB', // Tab bar surface
+  text: '#1E1B2E',
+  white: '#FFFFFF',
+  // Gradient (from figma)
+  gradA: '#B4A1E2', // top
+  gradB: '#BDEBD9', // bottom
+
+  // Legacy compatibility mappings
+  brand: '#6E2DD0',
+  brandDark: '#5923A8',
   brandFaint: '#EEE8F6',
-  text: '#222443',
   textSubtle: '#5E6172',
   bg: '#FFFFFF',
-  tabBG: '#FBF9FC',
+  tabBG: '#F7F3FB',
   tabIcon: '#A494B8',
-  tabIconActive: '#6F34D3',
-  sendBG: '#6F34D3',
-  // Legacy compatibility
+  tabIconActive: '#6E2DD0',
+  sendBG: '#6E2DD0',
   gray: '#8A8A8E',
-  ink: '#2F2A4A',
+  ink: '#1E1B2E',
   inputBg: '#F5F5F7',
   brandOn: '#FFFFFF',
   bubbleAI: '#FFFFFF',
-  bubbleUser: '#6F34D3',
-  gradTop: '#B09AD6',
+  bubbleUser: '#6E2DD0',
+  gradTop: '#B4A1E2',
   gradMid: '#B4ACD8',
-  gradBot: '#A6E3DD',
+  gradBot: '#BDEBD9',
 };
 
 export const radii = {
-  xl: 24,
+  xl: 28,
   lg: 20,
   md: 16,
-  sm: 10,
+  sm: 12,
+  round: 999,
+  // Legacy
   pill: 999,
   full: 999,
 };
 
 export const spacing = {
   xs: 6,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  xxl: 28,
+  sm: 10,
+  md: 14,
+  lg: 18,
+  xl: 24,
+  '2xl': 32,
+  // Legacy
+  xxl: 32,
+};
+
+export const dims = {
+  TAB_HEIGHT: 72,
+  FAB: 72,
+  INPUT_H: 54,
 };
 
 export const space = {
