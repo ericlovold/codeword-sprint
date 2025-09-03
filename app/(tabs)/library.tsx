@@ -33,20 +33,6 @@ export default function LibraryScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#F3EAF7' /* subtle bg under gradient */ }}>
-      {/* Header bar like the system you've been using */}
-      <View
-        style={{
-          backgroundColor: '#5A2AA7',
-          paddingTop: 12,
-          paddingBottom: 18,
-          alignItems: 'center',
-          borderBottomLeftRadius: 24,
-          borderBottomRightRadius: 24,
-        }}
-      >
-        <Text style={{ color: 'white', fontSize: 24, fontWeight: '700' }}>Codeword</Text>
-      </View>
-
       <ScrollView
         contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 28 }}
         showsVerticalScrollIndicator={false}
