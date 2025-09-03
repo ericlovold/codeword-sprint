@@ -1,17 +1,12 @@
 import React from 'react';
 import { Stack } from 'expo-router';
-import BrandHeader from '../src/components/BrandHeader';
+import BrandHeader from '../src/ui/BrandHeader';
 
 export default function RootLayout() {
   return (
     <Stack
       screenOptions={{
-        header: (props) => (
-          <BrandHeader
-            title={(props.options.title as string) || 'Codeword'}
-            showBack={props.navigation.canGoBack()}
-          />
-        ),
+        header: () => <BrandHeader />,
         headerTransparent: true,
         animation: 'slide_from_right',
       }}

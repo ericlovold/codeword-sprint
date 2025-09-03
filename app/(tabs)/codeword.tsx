@@ -5,7 +5,7 @@ import ScreenShell from '../../src/components/ScreenShell';
 import MessageBubble from '../../src/components/MessageBubble';
 import InputBar from '../../src/components/InputBar';
 import { useChatAgent } from '../../src/agent/useChatAgent';
-import { tokens } from '../../src/theme/tokens';
+import { colors } from '../../src/theme/tokens';
 
 export default function Chat() {
   const { messages, status, partialReply, sendMessage } = useChatAgent();
@@ -26,7 +26,7 @@ export default function Chat() {
         {partialReply && <MessageBubble role="ai">{partialReply}</MessageBubble>}
         {status === 'typing' && !partialReply && (
           <View style={{ padding: 16 }}>
-            <Text style={{ color: tokens.colors.gray }}>AI is typing...</Text>
+            <Text style={{ color: colors.gray }}>AI is typing...</Text>
           </View>
         )}
       </ScrollView>
