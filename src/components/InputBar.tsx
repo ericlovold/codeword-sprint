@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { tokens } from '../theme/tokens';
+import { colors } from '../theme/tokens';
 
 export default function InputBar({ onSend }: { onSend: (t: string) => void }) {
   const [text, setText] = useState('');
@@ -25,7 +25,7 @@ export default function InputBar({ onSend }: { onSend: (t: string) => void }) {
           value={text}
           onChangeText={setText}
           placeholder="Type a message..."
-          placeholderTextColor={tokens.colors.gray}
+          placeholderTextColor={colors.gray}
           style={styles.input}
           multiline={false}
           blurOnSubmit={true}
@@ -61,19 +61,19 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center' },
   input: {
     flex: 1,
-    backgroundColor: tokens.colors.inputBg,
+    backgroundColor: colors.inputBg,
     borderRadius: 24,
     paddingVertical: 12,
     paddingHorizontal: 16,
     marginRight: 10,
     fontSize: 16,
-    color: tokens.colors.ink,
+    color: colors.ink,
   },
   send: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: tokens.colors.brand,
+    backgroundColor: colors.brand,
     alignItems: 'center',
     justifyContent: 'center',
   },

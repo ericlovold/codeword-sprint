@@ -1,95 +1,117 @@
-// src/ui/CWTabBar.tsx
-import { View, Pressable, Image, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radii, spacing, dims } from '../theme/tokens';
+import { useRouter } from 'expo-router';
+import { COLORS, TYPE } from '../design/tokens';
+import Icon from '../components/Icon';
 
-type Props = {
-  state: any;
-  descriptors: any;
-  navigation: any;
-  getIcon: (routeName: string, focused: boolean) => any;
-};
-
-export default function CWTabBar({ state, descriptors, navigation, getIcon }: Props) {
+export default function CWTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+
+  const icons: Record<string, 'home' | 'guides' | 'coach' | 'profile' | null> = {
+    codeword: 'home',
+    library: 'guides',
+    launchpad: null, // Center FAB
+    coach: 'coach',
+    profile: 'profile',
+  };
 
   return (
-    <View style={{ height: dims.TAB_HEIGHT + insets.bottom + spacing.xl }}>
-      {/* Bar surface */}
-      <View style={[styles.bar, { bottom: insets.bottom + spacing.md }]}>
-        {state.routes.map((route: any, index: number) => {
-          // skip center slot (we draw FAB there)
-          if (index === 2) return <View key={route.key} style={{ width: dims.FAB }} />;
-
+    <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+      <View style={styles.tabBar}>
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+          const label = options.title !== undefined ? options.title : route.name;
           const isFocused = state.index === index;
-          const onPress = () => navigation.navigate(route.name);
+          const iconName = icons[route.name as keyof typeof icons];
+
+          if (route.name === 'launchpad') {
+            return (
+              <View key={index} style={styles.fabContainer}>
+                <TouchableOpacity style={styles.fab} onPress={() => router.push('/get-support')}>
+                  <Image
+                    source={require('../../assets/icons/brand/SemicolonIconPurple.png')}
+                    style={{ width: 24, height: 24, tintColor: COLORS.white }}
+                    resizeMode="contain"
+                  />
+                </TouchableOpacity>
+              </View>
+            );
+          }
 
           return (
-            <Pressable key={route.key} onPress={onPress} style={styles.tabBtn} hitSlop={10}>
-              <Image
-                source={getIcon(route.name, isFocused)}
-                style={[styles.icon, { opacity: isFocused ? 1 : 0.55 }]}
-                resizeMode="contain"
-              />
-            </Pressable>
+            <TouchableOpacity
+              key={index}
+              style={styles.tab}
+              onPress={() => {
+                const event = navigation.emit({
+                  type: 'tabPress',
+                  target: route.key,
+                  canPreventDefault: true,
+                });
+                if (!isFocused && !event.defaultPrevented) {
+                  navigation.navigate(route.name);
+                }
+              }}
+            >
+              {iconName && (
+                <Icon name={iconName} size={24} color={isFocused ? '#642975' : '#666666'} />
+              )}
+            </TouchableOpacity>
           );
         })}
       </View>
-
-      {/* Center FAB */}
-      <Pressable
-        onPress={() => navigation.navigate('launchpad')}
-        style={[
-          styles.fab,
-          {
-            bottom: insets.bottom + dims.TAB_HEIGHT - dims.FAB / 2,
-          },
-        ]}
-        hitSlop={6}
-      >
-        <Image
-          source={require('../../assets/icons/semicolon.png')}
-          style={{ width: 34, height: 34, tintColor: colors.white }}
-        />
-      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  bar: {
+  container: {
     position: 'absolute',
-    left: spacing.xl,
-    right: spacing.xl,
-    height: dims.TAB_HEIGHT,
-    backgroundColor: colors.surface,
-    borderRadius: radii.xl,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 0.5,
+    borderTopColor: '#E0E0E0',
   },
-  tabBtn: { width: 56, alignItems: 'center', justifyContent: 'center' },
-  icon: { width: 28, height: 28 },
-  fab: {
-    position: 'absolute',
-    left: '50%',
-    marginLeft: -dims.FAB / 2,
-    width: dims.FAB,
-    height: dims.FAB,
-    borderRadius: dims.FAB / 2,
-    backgroundColor: colors.purple,
+  tabBar: {
+    flexDirection: 'row',
+    height: 60,
+    alignItems: 'center',
+    paddingHorizontal: 20,
+  },
+  tab: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 8,
+  },
+  fabContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fab: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#642975',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    top: -20,
+    elevation: 8,
     shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 12,
-    zIndex: 2,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+  },
+  label: {
+    fontSize: 11,
+    marginTop: 4,
+    fontWeight: '500',
   },
 });

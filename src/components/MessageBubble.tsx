@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { tokens } from '../theme/tokens';
+import { colors } from '../theme/tokens';
 
 export default function MessageBubble({
   role,
@@ -13,7 +13,7 @@ export default function MessageBubble({
   return (
     <View style={[styles.wrap, isUser ? styles.right : styles.left]}>
       <View style={[styles.bubble, isUser ? styles.user : styles.ai]}>
-        <Text style={[styles.text, isUser && { color: tokens.colors.brandOn }]}>{children}</Text>
+        <Text style={[styles.text, isUser && { color: colors.brandOn }]}>{children}</Text>
       </View>
     </View>
   );
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
       elevation: 3,
     },
   },
-  ai: { backgroundColor: tokens.colors.bubbleAI },
-  user: { backgroundColor: tokens.colors.bubbleUser },
-  text: { fontSize: 16, color: tokens.colors.ink, lineHeight: 22 },
+  ai: { backgroundColor: colors.bubbleAI },
+  user: { backgroundColor: colors.bubbleUser },
+  text: { fontSize: 16, color: colors.ink, lineHeight: 22 },
 });

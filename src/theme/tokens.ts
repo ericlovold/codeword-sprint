@@ -1,107 +1,89 @@
-// src/theme/tokens.ts
-export const colors = {
-  purple: '#6E2DD0', // Brand Purple
-  purpleDark: '#5923A8',
-  mint: '#4BE3C1', // Semicolon accent
-  surface: '#F7F3FB', // Tab bar surface
-  text: '#1E1B2E',
+export const COLORS = {
+  // Primary colors from Figma
+  purple: '#7B3FF2', // Main purple from header
+  mint: '#4BE3C1', // Mint/teal for semicolon
   white: '#FFFFFF',
-  // Gradient (from figma)
-  gradA: '#B4A1E2', // top
-  gradB: '#BDEBD9', // bottom
+  black: '#000000',
 
-  // Legacy compatibility mappings
-  brand: '#6E2DD0',
-  brandDark: '#5923A8',
-  brandFaint: '#EEE8F6',
-  textSubtle: '#5E6172',
-  bg: '#FFFFFF',
-  tabBG: '#F7F3FB',
-  tabIcon: '#A494B8',
-  tabIconActive: '#6E2DD0',
-  sendBG: '#6E2DD0',
-  gray: '#8A8A8E',
-  ink: '#1E1B2E',
-  inputBg: '#F5F5F7',
-  brandOn: '#FFFFFF',
-  bubbleAI: '#FFFFFF',
-  bubbleUser: '#6E2DD0',
-  gradTop: '#B4A1E2',
-  gradMid: '#B4ACD8',
-  gradBot: '#BDEBD9',
+  // Gradient colors from Figma
+  gradientStart: '#B4A1E2', // Light purple
+  gradientEnd: '#A8E6CF', // Light mint/green
+
+  // Surface colors
+  surface: 'rgba(255, 255, 255, 0.95)', // Tab bar background
+  surfaceLight: '#F7F3FB',
+
+  // Text colors
+  textPrimary: '#1A1A1A',
+  textSecondary: '#6B7280',
+  textMuted: '#9CA3AF',
+
+  // Message bubbles
+  userBubble: '#7B3FF2',
+  aiBubble: '#FFFFFF',
 };
 
-export const radii = {
-  xl: 28,
-  lg: 20,
+export const DIMENSIONS = {
+  BRAND_H: 56, // Header height
+  TAB_HEIGHT: 72, // Tab bar height
+  FAB: 56, // FAB size
+  INPUT_H: 54, // Input height
+};
+
+export const TYPOGRAPHY = {
+  head: {
+    fontSize: 28,
+    fontWeight: '600' as const,
+    letterSpacing: -0.5,
+  },
+  body: {
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  small: {
+    fontSize: 12,
+    lineHeight: 16,
+  },
+};
+
+export const SPACING = {
+  xs: 4,
+  sm: 8,
   md: 16,
-  sm: 12,
-  round: 999,
-  // Legacy
-  pill: 999,
-  full: 999,
+  lg: 24,
+  xl: 32,
+  xxl: 48,
 };
 
-export const spacing = {
-  xs: 6,
-  sm: 10,
-  md: 14,
-  lg: 18,
-  xl: 24,
-  '2xl': 32,
-  // Legacy
-  xxl: 32,
+export const RADII = {
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  full: 9999,
 };
 
-export const dims = {
-  TAB_HEIGHT: 72,
-  FAB: 72,
-  INPUT_H: 54,
+// Backward compatibility exports
+export const colors = {
+  ...COLORS,
+  // Map old names to new
+  gradA: COLORS.gradientStart,
+  gradB: COLORS.gradientEnd,
+  brandOn: COLORS.white,
+  bubbleAI: COLORS.aiBubble,
+  bubbleUser: COLORS.userBubble,
+  gray: COLORS.textMuted,
+  inputBg: COLORS.surfaceLight,
+  sendBG: COLORS.purple,
+  tabBG: COLORS.surfaceLight,
+  text: COLORS.textPrimary,
+  textSubtle: COLORS.textSecondary,
+  brand: COLORS.purple,
+  brandFaint: COLORS.surfaceLight,
+  ink: COLORS.textPrimary,
 };
 
-export const space = {
-  0: 0,
-  4: 4,
-  6: 6,
-  8: 8,
-  10: 10,
-  12: 12,
-  14: 14,
-  16: 16,
-  20: 20,
-  24: 24,
-  28: 28,
-  32: 32,
-};
-
-export const shadows = {
-  tab: {
-    shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: -2 },
-    elevation: 14,
-  },
-  fab: {
-    shadowColor: '#000',
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 16,
-  },
-};
-
-// Legacy export for compatibility
-export const tokens = {
-  colors,
-  radii,
-  space,
-};
-
-export const type = {
-  h1: { fontSize: 28, lineHeight: 34, fontWeight: '700' as const },
-  h2: { fontSize: 22, lineHeight: 28, fontWeight: '700' as const },
-  body: { fontSize: 16, lineHeight: 24, fontWeight: '400' as const },
-  chat: { fontSize: 17, lineHeight: 24, fontWeight: '500' as const },
-  label: { fontSize: 14, lineHeight: 18, fontWeight: '600' as const },
-};
+export const dims = DIMENSIONS;
+export const spacing = SPACING;
+export const radii = { ...RADII, pill: RADII.full };
+export const type = TYPOGRAPHY;
