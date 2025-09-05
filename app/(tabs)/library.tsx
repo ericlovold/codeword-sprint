@@ -139,20 +139,25 @@ const mockGuidesData = [
     id: 'next-steps',
     title: 'Next steps',
     items: [
+      'Help them identify immediate next actions',
       'Create a safety plan together',
-      'Schedule follow-up contact',
-      'Identify warning signs to watch for',
-      'Establish emergency contacts',
+      'Discuss follow-up conversations',
+      'Establish check-in times and methods',
     ],
   },
   {
     id: 'external-resources',
     title: 'Consider external resources',
-    items: [
-      '988 Suicide & Crisis Lifeline',
-      'Crisis Text Line (Text HOME to 741741)',
-      'Local emergency services (911)',
-      'Mental health professionals in your area',
+    items: [],
+    customContent: [
+      {
+        type: 'link',
+        text: 'National Suicide Prevention Lifeline: ',
+        linkText: 'Text or Dial 988',
+      },
+      { type: 'link', text: 'Crisis Text Line: Text HOME to ', linkText: '741741' },
+      { type: 'link', text: 'Local emergency services: ', linkText: 'Text or Dial 911' },
+      { type: 'text', text: 'Mental health professionals and counselors' },
     ],
   },
 ];
@@ -174,14 +179,29 @@ function AccordionHeader({ title, isOpen }: any) {
   );
 }
 
-function AccordionContent({ items }: any) {
+function AccordionContent({ items, customContent }: any) {
   return (
     <View style={styles.cardContent}>
-      {items.length > 0 && (
+      {customContent ? (
+        <View style={styles.resourcesList}>
+          {customContent.map((content: any, index: number) => (
+            <View key={index} style={styles.resourceItem}>
+              {content.type === 'link' ? (
+                <Text style={styles.resourceText}>
+                  {content.text}
+                  <Text style={styles.linkText}>{content.linkText}</Text>
+                </Text>
+              ) : (
+                <Text style={styles.resourceText}>{content.text}</Text>
+              )}
+            </View>
+          ))}
+        </View>
+      ) : items.length > 0 ? (
         <>
-          <View style={styles.askAiButton}>
+          <Pressable style={styles.askAiButton} onPress={() => router.push('/(tabs)/codeword')}>
             <Text style={styles.askAiText}>Ask AI Coach</Text>
-          </View>
+          </Pressable>
           <View style={styles.bulletList}>
             {items.map((item: string, index: number) => (
               <View key={index} style={styles.bulletItem}>
@@ -191,7 +211,7 @@ function AccordionContent({ items }: any) {
             ))}
           </View>
         </>
-      )}
+      ) : null}
     </View>
   );
 }
@@ -199,7 +219,7 @@ function AccordionContent({ items }: any) {
 export default function LibraryScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [openId, setOpenId] = useState<string | null>('gun-safety'); // default open like wireframe shows
+  const [openId, setOpenId] = useState<string | null>('external-resources'); // default open like wireframe shows
 
   return (
     <ImageBackground
@@ -222,7 +242,9 @@ export default function LibraryScreen() {
               onToggle={() => setOpenId(isOpen ? null : section.id)}
             >
               <AccordionHeader title={section.title} isOpen={isOpen} />
-              {isOpen && <AccordionContent items={section.items} />}
+              {isOpen && (
+                <AccordionContent items={section.items} customContent={section.customContent} />
+              )}
             </AccordionCard>
           );
         })}
@@ -230,9 +252,101 @@ export default function LibraryScreen() {
         {/* Personal Wellness Section */}
         <Text style={[styles.title, { marginTop: 40, marginBottom: 20 }]}>Personal Wellness</Text>
 
-        <AccordionCard isOpen={false} onToggle={() => {}}>
-          <AccordionHeader title="Track My Mood" isOpen={false} />
-        </AccordionCard>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Track My Mood</Text>
+          </View>
+          <View style={[styles.cardContent, { paddingTop: 0 }]}>
+            <Text style={styles.moodDescription}>
+              Monitor your emotional wellbeing with our mood tracking tool. Identify patterns and
+              triggers to better understand your mental health journey.
+            </Text>
+            <Pressable style={styles.trackMoodButton} onPress={() => router.push('/coach')}>
+              <Text style={styles.trackMoodButtonText}>Track My Mood</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Resources Section */}
+        <Text style={[styles.title, { marginTop: 40, marginBottom: 20 }]}>Resources</Text>
+
+        {/* Crisis Hotlines */}
+        <View style={[styles.card, { marginBottom: 16 }]}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Crisis Hotlines</Text>
+          </View>
+          <View style={[styles.cardContent, { paddingTop: 0 }]}>
+            <View style={styles.hotlineItem}>
+              <Text style={styles.hotlineTitle}>988 Suicide & Crisis Lifeline</Text>
+              <Text style={styles.hotlineDescription}>24/7 support for people in crisis</Text>
+            </View>
+            <View style={styles.hotlineItem}>
+              <Text style={styles.hotlineTitle}>Crisis Text Line</Text>
+              <Text style={styles.hotlineDescription}>Text HOME to 741741</Text>
+            </View>
+            <View style={styles.hotlineItem}>
+              <Text style={styles.hotlineTitle}>Veterans Crisis Line</Text>
+              <Text style={styles.hotlineDescription}>1-800-273-8255, Press 1</Text>
+            </View>
+            <View style={[styles.hotlineItem, { borderBottomWidth: 0 }]}>
+              <Text style={styles.hotlineTitle}>Trevor Project (LGBTQ+)</Text>
+              <Text style={styles.hotlineDescription}>1-866-488-7386</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Find Professional Support */}
+        <View style={[styles.card, { marginBottom: 40 }]}>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardTitle}>Find Professional Support</Text>
+          </View>
+          <View style={[styles.cardContent, { paddingTop: 0 }]}>
+            <Text style={styles.moodDescription}>
+              Connect with licensed therapists and mental health professionals who can provide
+              ongoing support and guidance.
+            </Text>
+
+            <View style={styles.hotlineItem}>
+              <Text style={styles.hotlineTitle}>Find a Therapist</Text>
+              <Text style={styles.hotlineDescription}>
+                Find therapists by location, insurance, and specialty
+              </Text>
+            </View>
+
+            <View style={styles.hotlineItem}>
+              <Text style={styles.hotlineTitle}>SAMHSA National Helpline</Text>
+              <Text style={styles.hotlineDescription}>Free, confidential treatment referrals</Text>
+            </View>
+
+            <View style={styles.hotlineItem}>
+              <Text style={styles.hotlineTitle}>
+                National Eating Disorders Association Helpline
+              </Text>
+              <Text style={styles.hotlineDescription}>
+                Reach out for help with eating concerns, body image issues, or disordered eating.
+              </Text>
+            </View>
+
+            <View style={[styles.hotlineItem, { borderBottomWidth: 0 }]}>
+              <Text style={styles.hotlineTitle}>National Domestic Violence Hotline</Text>
+              <Text style={styles.hotlineDescription}>
+                Get support if you feel controlled, unsafe, or harmed by a partner or family member.
+                Call or text 'START' to 88788.
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Partners Section */}
+        <Text style={[styles.title, { marginTop: 20, marginBottom: 20 }]}>Partners</Text>
+
+        <View style={[styles.card, { marginBottom: 40 }]}>
+          <View style={[styles.cardContent, { paddingVertical: 30, alignItems: 'center' }]}>
+            <Text style={[styles.moodDescription, { textAlign: 'center', marginBottom: 0 }]}>
+              Partner resources and collaborations will be available here soon.
+            </Text>
+          </View>
+        </View>
       </ScrollView>
     </ImageBackground>
   );
@@ -315,5 +429,53 @@ const styles = StyleSheet.create({
     fontSize: 15,
     flex: 1,
     lineHeight: 22,
+  },
+  moodDescription: {
+    fontSize: 14,
+    color: '#666666',
+    lineHeight: 22,
+    marginBottom: 20,
+  },
+  trackMoodButton: {
+    backgroundColor: '#642975',
+    borderRadius: 24,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  trackMoodButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  hotlineItem: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  hotlineTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1B1D22',
+    marginBottom: 4,
+  },
+  hotlineDescription: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  resourcesList: {
+    gap: 16,
+  },
+  resourceItem: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  resourceText: {
+    fontSize: 16,
+    color: '#1B1D22',
+    lineHeight: 24,
+  },
+  linkText: {
+    color: '#642975',
+    textDecorationLine: 'underline',
   },
 });

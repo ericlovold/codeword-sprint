@@ -1,15 +1,82 @@
 {
   "expo": {
-    "name": "codeword-sprint",
+    "name": "Codeword",
     "slug": "codeword-sprint",
+    "owner": "codeword-team",
     "scheme": "codeword",
-    "plugins": ["expo-router", "expo-font"],
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#642975"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-notifications",
+        {
+          "sounds": ["./assets/sounds/critical-alert.wav"]
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": false
+        }
+      ]
+    ],
     "extra": {
       "API_BASE": "http://localhost:9988",
       "API_BASE_URL": "http://localhost:8000",
       "WS_URL": "ws://localhost:8000/ws/chat",
       "CLIENT_NAME": "codeword-app",
       "CLIENT_VERSION": "0.1.0"
+    },
+    "ios": {
+      "bundleIdentifier": "com.codeword.app",
+      "buildNumber": "1",
+      "supportsTablet": false,
+      "config": {
+        "usesNonExemptEncryption": false
+      },
+      "entitlements": {
+        "aps-environment": "production",
+        "com.apple.developer.usernotifications.critical-alerts": true
+      },
+      "infoPlist": {
+        "UIBackgroundModes": ["audio", "fetch", "remote-notification"],
+        "NSUserNotificationsCriticalAlertUsageDescription": "Codeword uses critical alerts to notify you of urgent support messages even when your device is silenced.",
+        "NSCameraUsageDescription": "Codeword needs camera access to share photos with your support network.",
+        "NSPhotoLibraryUsageDescription": "Codeword needs photo library access to share photos with your support network.",
+        "NSLocationWhenInUseUsageDescription": "Codeword can optionally share your location with trusted contacts during emergencies.",
+        "ITSAppUsesNonExemptEncryption": false,
+        "LSRequiresIPhoneOS": true,
+        "UIRequiredDeviceCapabilities": ["arm64"],
+        "UIStatusBarStyle": "UIStatusBarStyleLightContent",
+        "UIViewControllerBasedStatusBarAppearance": false
+      },
+      "privacyManifests": {
+        "NSPrivacyAccessedAPITypes": []
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#642975"
+      },
+      "package": "com.codeword.app",
+      "permissions": ["NOTIFICATIONS", "VIBRATE"]
+    },
+    "notification": {
+      "icon": "./assets/notification-icon.png",
+      "color": "#642975",
+      "androidMode": "default",
+      "androidCollapsedTitle": "Codeword",
+      "iosDisplayInForeground": true
     }
   }
 }
