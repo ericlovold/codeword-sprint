@@ -8,3 +8,7 @@ temp/
 .cache/
 **/.gradle/
 **/build/.DS_Store
+
+# Environment variables
+.env.local
+.env.production

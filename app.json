@@ -2,7 +2,7 @@
   "expo": {
     "name": "Codeword",
     "slug": "codeword-sprint",
-    "owner": "codeword-team",
+    "owner": "xcai-aiia",
     "scheme": "codeword",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -34,7 +34,11 @@
       "API_BASE_URL": "http://localhost:8000",
       "WS_URL": "ws://localhost:8000/ws/chat",
       "CLIENT_NAME": "codeword-app",
-      "CLIENT_VERSION": "0.1.0"
+      "CLIENT_VERSION": "0.1.0",
+      "router": {},
+      "eas": {
+        "projectId": "1f0b6694-1dfd-4f27-99b4-c2745adb21f7"
+      }
     },
     "ios": {
       "bundleIdentifier": "com.codeword.app",
@@ -69,7 +73,7 @@
         "backgroundColor": "#642975"
       },
       "package": "com.codeword.app",
-      "permissions": ["NOTIFICATIONS", "VIBRATE"]
+      "permissions": ["NOTIFICATIONS", "VIBRATE", "android.permission.MODIFY_AUDIO_SETTINGS"]
     },
     "notification": {
       "icon": "./assets/notification-icon.png",

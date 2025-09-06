@@ -140,7 +140,7 @@ export async function initializeNotifications() {
       // This requires EAS build or proper Expo project setup
       try {
         const token = await Notifications.getExpoPushTokenAsync({
-          projectId: 'your-project-id', // This will be configured during EAS build
+          projectId: '1f0b6694-1dfd-4f27-99b4-c2745adb21f7', // EAS project ID
         });
         console.log('Push token:', token.data);
         return token.data;
