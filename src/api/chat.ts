@@ -4,7 +4,36 @@ import Constants from 'expo-constants';
 // Updated to connect to XCAi Platform on port 8000
 const API_BASE = (Constants?.expoConfig?.extra as any)?.API_BASE ?? 'http://localhost:8000';
 
-export type ChatMessage = { role: 'user' | 'assistant' | 'system'; content: string };
+export type ChatMessage = {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp?: number;
+  id?: string;
+};
+
+export type ChatSession = {
+  sessionId: string;
+  userId: string;
+  createdAt: number;
+  lastActivity: number;
+  metadata?: any;
+};
+
+export type StreamingResponse = {
+  content: string;
+  done: boolean;
+  metadata?: any;
+};
+
+export type ModelVariant = 'kai' | 'neo' | 'nemo' | 'gpt-4o' | 'claude-3-haiku';
+
+// Session management
+export type SessionConfig = {
+  model?: ModelVariant;
+  systemPrompt?: string;
+  guardrails?: string[];
+  userId?: string;
+};
 
 async function sendOnce(
   text: string,
@@ -101,17 +130,194 @@ async function sendWithHistory(
   };
 }
 
-// Health check for the chat service
-async function healthCheck(): Promise<{ status: string; models_available: any }> {
-  const res = await fetch(`${API_BASE}/chat/health`);
+// Session management - Phase 2 Core Chat Flow
+async function createSession(config: SessionConfig = {}): Promise<ChatSession> {
+  const res = await fetch(`${API_BASE}/session`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Client': 'codeword-sprint',
+      'X-Version': '1.0.0',
+    },
+    body: JSON.stringify({
+      model: config.model || 'gpt-4o',
+      systemPrompt: config.systemPrompt || 'You are a supportive AI assistant for crisis support.',
+      guardrails: config.guardrails || ['crisis-detection', 'safety-first'],
+      userId: config.userId,
+      metadata: {
+        app: 'codeword',
+        surface: 'mobile',
+        platform: 'xcai-v2.0.0',
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to create session: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+// Send message with streaming support
+async function sendMessage(
+  sessionId: string,
+  message: string,
+  onStream?: (chunk: StreamingResponse) => void,
+): Promise<ChatMessage> {
+  const isStreaming = !!onStream;
+
+  const res = await fetch(`${API_BASE}/message`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Client': 'codeword-sprint',
+      'X-Version': '1.0.0',
+      'X-Session-ID': sessionId,
+    },
+    body: JSON.stringify({
+      message,
+      stream: isStreaming,
+      timestamp: Date.now(),
+    }),
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    if (res.status === 429) {
+      throw new Error('Rate limit exceeded. Please wait before sending another message.');
+    } else if (res.status >= 500) {
+      throw new Error('Server temporarily unavailable. Please try again.');
+    }
+    throw new Error(`Message failed: ${res.status} - ${errorText}`);
+  }
+
+  if (isStreaming && res.body) {
+    // Handle streaming response
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let fullContent = '';
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        const lines = chunk.split('\n');
+
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const data = JSON.parse(line.slice(6));
+              const streamChunk: StreamingResponse = {
+                content: data.content || '',
+                done: data.done || false,
+                metadata: data.metadata,
+              };
+              fullContent += streamChunk.content;
+              onStream(streamChunk);
+
+              if (streamChunk.done) {
+                return {
+                  role: 'assistant',
+                  content: fullContent,
+                  timestamp: Date.now(),
+                  id: data.messageId,
+                };
+              }
+            } catch (e) {
+              console.error('Failed to parse streaming chunk:', e);
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
+
+  // Non-streaming response
+  const data = await res.json();
+  return {
+    role: 'assistant',
+    content: data.content || '',
+    timestamp: Date.now(),
+    id: data.messageId,
+  };
+}
+
+// Get session events (for analytics/debugging)
+async function getSessionEvents(sessionId: string): Promise<any[]> {
+  const res = await fetch(`${API_BASE}/events/${sessionId}`, {
+    headers: {
+      'X-Client': 'codeword-sprint',
+      'X-Version': '1.0.0',
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to get events: ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data.events || [];
+}
+
+// Health check for the chat service with orchestration
+async function healthCheck(): Promise<{
+  status: string;
+  models_available: any;
+  orchestration_status?: string;
+}> {
+  const res = await fetch(`${API_BASE}/healthz`); // Updated endpoint name
   if (!res.ok) {
     throw new Error(`Health check failed: ${res.status}`);
   }
   return res.json();
 }
 
+// Model failover support
+async function sendWithFailover(
+  sessionId: string,
+  message: string,
+  primaryModel: ModelVariant = 'gpt-4o',
+  fallbackModel: ModelVariant = 'claude-3-haiku',
+): Promise<ChatMessage> {
+  try {
+    // Try primary model first
+    return await sendMessage(sessionId, message);
+  } catch (error) {
+    console.warn(
+      `Primary model (${primaryModel}) failed, trying fallback (${fallbackModel}):`,
+      error,
+    );
+
+    // Update session to use fallback model
+    await fetch(`${API_BASE}/session/${sessionId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Client': 'codeword-sprint',
+        'X-Version': '1.0.0',
+      },
+      body: JSON.stringify({ model: fallbackModel }),
+    });
+
+    // Retry with fallback
+    return await sendMessage(sessionId, message);
+  }
+}
+
 export const chatApi = {
+  // Legacy methods (Phase 1)
   send: sendOnce,
   sendWithHistory,
+
+  // Phase 2 Core Chat Flow
+  createSession,
+  sendMessage,
+  sendWithFailover,
+  getSessionEvents,
   healthCheck,
 };

@@ -53,11 +53,12 @@ export async function playCriticalSound() {
   }
 }
 
-// Request notification permissions
+// Request notification permissions including Critical Alerts
 export async function requestNotificationPermissions() {
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
   let finalStatus = existingStatus;
 
+  // Always request with Critical Alerts - even if basic permissions were granted before
   if (existingStatus !== 'granted') {
     const { status } = await Notifications.requestPermissionsAsync({
       ios: {
@@ -65,16 +66,32 @@ export async function requestNotificationPermissions() {
         allowBadge: true,
         allowSound: true,
         allowAnnouncements: true,
-        allowCriticalAlerts: true, // Apple approval granted
+        allowCriticalAlerts: true, // Requires Apple approval for bundle ID
+      },
+    });
+    finalStatus = status;
+  } else {
+    // Re-request to ensure Critical Alerts are included if previously only basic perms
+    const { status } = await Notifications.requestPermissionsAsync({
+      ios: {
+        allowAlert: true,
+        allowBadge: true,
+        allowSound: true,
+        allowAnnouncements: true,
+        allowCriticalAlerts: true, // Critical escalation from basic permissions
       },
     });
     finalStatus = status;
   }
 
   if (finalStatus !== 'granted') {
-    console.log('Failed to get push token for push notification!');
+    console.log('Failed to get notification permissions!');
     return false;
   }
+
+  // Log the actual permissions granted for debugging
+  const permissions = await Notifications.getPermissionsAsync();
+  console.log('Notification permissions granted:', permissions);
 
   return true;
 }
@@ -89,12 +106,8 @@ export async function scheduleCriticalNotification(title: string, body: string, 
     content: {
       title,
       body,
-      sound: {
-        critical: true, // Enable critical alert sound
-        name: 'critical-alert.wav', // Custom critical alert sound
-        volume: 1.0,
-      },
-      priority: Notifications.AndroidNotificationPriority.HIGH,
+      sound: 'critical-alert.wav', // Just the filename, no path needed
+      priority: Notifications.AndroidNotificationPriority.MAX,
       data: {
         ...data,
         isCritical: true,
@@ -186,4 +199,33 @@ export function setupNotificationListeners() {
     Notifications.removeNotificationSubscription(notificationListener);
     Notifications.removeNotificationSubscription(responseListener);
   };
+}
+
+// Test function for Critical Alerts (for development/testing)
+export async function testCriticalAlert() {
+  try {
+    console.log('Testing Critical Alert...');
+
+    // Check permissions first
+    const permissions = await Notifications.getPermissionsAsync();
+    console.log('Current permissions:', permissions);
+
+    if (permissions.status !== 'granted') {
+      console.log('Requesting permissions...');
+      await requestNotificationPermissions();
+    }
+
+    // Send test critical alert
+    const notificationId = await scheduleCriticalNotification(
+      'Codeword Test Alert',
+      'This is a test critical alert to verify DND/Silent bypass functionality.',
+      { testAlert: true },
+    );
+
+    console.log(`Test critical alert sent with ID: ${notificationId}`);
+    return notificationId;
+  } catch (error) {
+    console.error('Critical Alert test failed:', error);
+    throw error;
+  }
 }
