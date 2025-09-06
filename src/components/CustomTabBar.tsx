@@ -1,110 +1,143 @@
 import React from 'react';
-import { View, Pressable, Text, StyleSheet } from 'react-native';
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { View, Pressable, Image, Text, StyleSheet } from 'react-native';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-function TabBtn({
-  active,
-  label,
-  onPress,
-  icon,
-}: {
-  active: boolean;
-  label: string;
-  onPress: () => void;
-  icon: React.ReactNode;
-}) {
-  return (
-    <Pressable onPress={onPress} style={styles.tab}>
-      <View style={{ opacity: active ? 1 : 0.45 }}>{icon}</View>
-      <Text style={[styles.label, active && styles.labelActive]} numberOfLines={1}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
+const BRAND = {
+  purple: '#6F2DBD',
+  purpleDark: '#5B22A0',
+  cream: '#F7F3FB',
+  label: '#6B6B7A',
+  labelActive: '#3E3E54',
+};
 
-export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
+const TAB_ICON = (routeName: string) => {
+  switch (routeName) {
+    case 'chat':
+      return require('../../assets/icons/tabs/TabChat.png');
+    case 'library':
+      return require('../../assets/icons/tabs/TabLibrary.png');
+    case 'coach':
+      return require('../../assets/icons/tabs/TabCoach.png');
+    case 'profile':
+      return require('../../assets/icons/tabs/TabProfile.png');
+    default:
+      return require('../../assets/icons/tabs/TabChat.png');
+  }
+};
+
+const FAB_ICON = require('../../assets/icons/semicolon.png'); // solid purple mark
+
+export default function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const go = (name: string) => () => navigation.navigate(name as never);
-  const isActive = (name: string) => state.routes[state.index]?.name === name;
+  const TAB_H = 70;
+  const FAB = 74;
 
   return (
-    <View style={[styles.wrap, { paddingBottom: Math.max(insets.bottom, 10) }]}>
-      <View style={styles.bar}>
-        <TabBtn
-          active={isActive('chat')}
-          label="Chat"
-          onPress={go('chat')}
-          icon={<MaterialCommunityIcons name="chat-outline" size={24} />}
-        />
-        <TabBtn
-          active={isActive('library')}
-          label="Library"
-          onPress={go('library')}
-          icon={<Ionicons name="book-outline" size={24} />}
-        />
+    <View
+      style={[
+        styles.shell,
+        {
+          paddingBottom: insets.bottom ? insets.bottom - 4 : 10,
+          height: TAB_H + (insets.bottom || 10),
+        },
+      ]}
+      pointerEvents="box-none"
+    >
+      {/* Row of tab items */}
+      <View style={styles.row} pointerEvents="auto">
+        {state.routes.map((route, index) => {
+          const isFocused = state.index === index;
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+            if (!isFocused && !event.defaultPrevented) navigation.navigate(route.name);
+          };
 
-        {/* Center FAB */}
-        <Pressable onPress={go('get-help')} style={styles.fab} hitSlop={12}>
-          <Text style={styles.fabGlyph}>;</Text>
-        </Pressable>
-
-        <TabBtn
-          active={isActive('mood')}
-          label="Mood"
-          onPress={go('mood')}
-          icon={<MaterialCommunityIcons name="heart-pulse" size={24} />}
-        />
-        <TabBtn
-          active={isActive('profile')}
-          label="Profile"
-          onPress={go('profile')}
-          icon={<Ionicons name="person-outline" size={24} />}
-        />
+          return (
+            <Pressable key={route.key} onPress={onPress} style={styles.tabBtn} hitSlop={10}>
+              <Image
+                source={TAB_ICON(route.name)}
+                style={[styles.icon, { opacity: isFocused ? 1 : 0.55 }]}
+                resizeMode="contain"
+              />
+              <Text
+                style={[styles.label, { color: isFocused ? BRAND.labelActive : BRAND.label }]}
+                numberOfLines={1}
+              >
+                {descriptors[route.key]?.options.tabBarLabel ??
+                  route.name[0].toUpperCase() + route.name.slice(1)}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
+
+      {/* Center FAB */}
+      <Pressable
+        onPress={() => navigation.navigate('chat')} // or "launchpad"
+        style={[
+          styles.fab,
+          {
+            width: FAB,
+            height: FAB,
+            borderRadius: FAB / 2,
+            bottom: TAB_H - FAB / 2, // half over the bar
+            left: '50%',
+            transform: [{ translateX: -FAB / 2 }],
+            backgroundColor: BRAND.purple,
+          },
+        ]}
+      >
+        <Image source={FAB_ICON} style={{ width: 36, height: 36, tintColor: 'white' }} />
+      </Pressable>
     </View>
   );
 }
 
-const PURPLE = '#6F45CF';
-
 const styles = StyleSheet.create({
-  wrap: {
-    backgroundColor: 'rgba(255,255,255,0.94)',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: 'rgba(0,0,0,0.08)',
+  shell: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'transparent',
+    overflow: 'visible',
   },
-  bar: {
+  row: {
+    marginHorizontal: 18,
+    borderRadius: 24,
+    backgroundColor: 'white',
+    height: 70,
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingTop: 8,
-    paddingHorizontal: 8,
+    paddingHorizontal: 18,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 12,
   },
-  tab: {
+  tabBtn: {
     width: 72,
     alignItems: 'center',
-    gap: 2,
+    justifyContent: 'center',
   },
-  label: { fontSize: 11, color: '#555' },
-  labelActive: { color: PURPLE, fontWeight: '600' },
+  icon: { width: 26, height: 26, marginBottom: 4 },
+  label: { fontSize: 12, fontWeight: '600' },
   fab: {
     position: 'absolute',
-    left: '50%',
-    transform: [{ translateX: -28 }, { translateY: -18 }],
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: PURPLE,
+    zIndex: 20,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 20,
   },
-  fabGlyph: { color: 'white', fontSize: 32, lineHeight: 36, fontWeight: '800' },
 });
