@@ -11,10 +11,17 @@ export default function TabLayout() {
         screenOptions={{
           header: () => <BrandHeader />,
           contentStyle: { backgroundColor: '#F8F8F8' },
+          tabBarStyle: { display: 'flex' }, // Ensure tab bar is always visible
         }}
         tabBar={(props) => <CWTabBar {...props} />}
       >
-        <Tabs.Screen name="codeword" options={{ title: 'Codeword' }} />
+        <Tabs.Screen
+          name="codeword"
+          options={{
+            title: 'Codeword',
+            tabBarStyle: { display: 'flex' }, // Explicitly show tab bar on codeword screen
+          }}
+        />
         <Tabs.Screen name="library" options={{ title: 'Guides' }} />
         <Tabs.Screen name="launchpad" options={{ title: '' }} />
         <Tabs.Screen name="coach" options={{ title: 'Coach' }} />

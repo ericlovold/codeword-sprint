@@ -10,9 +10,11 @@ import {
   Platform,
   ImageBackground,
   Image,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../src/components/Icon';
+import { chatApi, ChatMessage } from '../../src/api/chat';
 
 const initialMessages = [
   {
@@ -36,10 +38,32 @@ export default function CodewordScreen() {
   const insets = useSafeAreaInsets();
   const [text, setText] = useState('');
   const [messages, setMessages] = useState(initialMessages);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
+  // Initialize chat session on component mount
+  useEffect(() => {
+    const initializeSession = async () => {
+      try {
+        const session = await chatApi.createSession({
+          systemPrompt:
+            'You are a supportive AI assistant for crisis support. Be empathetic, helpful, and always prioritize user safety.',
+          guardrails: ['crisis-detection', 'safety-first'],
+        });
+        setSessionId(session.sessionId);
+        console.log('Chat session created:', session.sessionId);
+      } catch (error) {
+        console.error('Failed to create chat session:', error);
+        Alert.alert('Connection Error', 'Failed to connect to chat service. Please try again.');
+      }
+    };
+
+    initializeSession();
+  }, []);
+
   const sendMessage = async () => {
-    if (text.trim().length === 0) return;
+    if (text.trim().length === 0 || !sessionId || isLoading) return;
 
     const userMessage = {
       id: Date.now().toString(),
@@ -49,19 +73,21 @@ export default function CodewordScreen() {
 
     setMessages((prev) => [...prev, userMessage]);
     setText('');
+    setIsLoading(true);
 
     // Auto-scroll to bottom
     setTimeout(() => {
       flatListRef.current?.scrollToEnd({ animated: true });
     }, 100);
 
-    // TODO: Replace with actual API call
-    // Simulate AI response for now
-    setTimeout(() => {
+    try {
+      // Use Phase 2 Chat API with session management
+      const response = await chatApi.sendMessage(sessionId, userMessage.text);
+
       const aiResponse = {
-        id: (Date.now() + 1).toString(),
+        id: response.id || Date.now().toString(),
         role: 'ai' as const,
-        text: 'I hear you. Thank you for sharing that with me. How are you feeling right now?',
+        text: response.content,
       };
 
       setMessages((prev) => [...prev, aiResponse]);
@@ -69,7 +95,24 @@ export default function CodewordScreen() {
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });
       }, 100);
-    }, 1500);
+    } catch (error) {
+      console.error('Failed to send message:', error);
+
+      // Show error message in chat
+      const errorResponse = {
+        id: Date.now().toString(),
+        role: 'ai' as const,
+        text: "I apologize, but I'm having trouble connecting right now. Please check your internet connection and try again.",
+      };
+
+      setMessages((prev) => [...prev, errorResponse]);
+
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -94,7 +137,7 @@ export default function CodewordScreen() {
         {/* Messages */}
         <FlatList
           ref={flatListRef}
-          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 160 }]}
+          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 140 }]}
           data={messages}
           keyExtractor={(m) => m.id}
           renderItem={({ item }) => (
@@ -114,8 +157,8 @@ export default function CodewordScreen() {
           }}
         />
 
-        {/* Input Bar - Outside tab bar */}
-        <View style={[styles.inputContainer, { bottom: insets.bottom + 80 }]}>
+        {/* Input Bar - Above tab bar */}
+        <View style={[styles.inputContainer, { bottom: insets.bottom + 70 }]}>
           <View style={styles.inputWrapper}>
             <TextInput
               value={text}
@@ -130,8 +173,12 @@ export default function CodewordScreen() {
               enablesReturnKeyAutomatically={true}
             />
           </View>
-          <Pressable style={styles.sendBtn} onPress={sendMessage}>
-            <Text style={styles.arrowIcon}>→</Text>
+          <Pressable
+            style={[styles.sendBtn, { opacity: isLoading ? 0.6 : 1 }]}
+            onPress={sendMessage}
+            disabled={isLoading || !sessionId}
+          >
+            <Text style={styles.arrowIcon}>{isLoading ? '...' : '→'}</Text>
           </Pressable>
         </View>
       </KeyboardAvoidingView>
