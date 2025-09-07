@@ -15,6 +15,10 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../src/components/Icon';
 import { chatApi, ChatMessage } from '../../src/api/chat';
+import {
+  scheduleCriticalNotification,
+  scheduleNotification,
+} from '../../src/services/notificationService';
 
 const initialMessages = [
   {
@@ -81,7 +85,7 @@ export default function CodewordScreen() {
     }, 100);
 
     try {
-      // Use Phase 2 Chat API with session management
+      // Use real backend API
       const response = await chatApi.sendMessage(sessionId, userMessage.text);
 
       const aiResponse = {
@@ -91,6 +95,31 @@ export default function CodewordScreen() {
       };
 
       setMessages((prev) => [...prev, aiResponse]);
+
+      // Handle crisis detection
+      if (response.metadata?.crisis_level && response.metadata.crisis_level >= 13) {
+        console.log(`Crisis detected! Level: ${response.metadata.crisis_level}`);
+        try {
+          await scheduleCriticalNotification(
+            'Codeword Crisis Alert',
+            'High crisis level detected. Support resources are available.',
+            { crisis_level: response.metadata.crisis_level },
+          );
+        } catch (error) {
+          console.error('Failed to send critical alert:', error);
+        }
+      } else if (response.metadata?.crisis_level && response.metadata.crisis_level >= 8) {
+        console.log(`Elevated concern detected! Level: ${response.metadata.crisis_level}`);
+        try {
+          await scheduleNotification(
+            'Codeword Check-in',
+            'We noticed you might need extra support. How are you feeling?',
+            { crisis_level: response.metadata.crisis_level },
+          );
+        } catch (error) {
+          console.error('Failed to send notification:', error);
+        }
+      }
 
       setTimeout(() => {
         flatListRef.current?.scrollToEnd({ animated: true });

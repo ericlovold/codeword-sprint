@@ -1,8 +1,8 @@
 // src/api/chat.ts
 import Constants from 'expo-constants';
 
-// Updated to connect to XCAi Platform on port 8000
-const API_BASE = (Constants?.expoConfig?.extra as any)?.API_BASE ?? 'http://localhost:8000';
+// Connect to Codeword Backend on port 9989
+const API_BASE = (Constants?.expoConfig?.extra as any)?.API_BASE ?? 'http://localhost:9989/v1';
 
 export type ChatMessage = {
   role: 'user' | 'assistant' | 'system';
@@ -130,25 +130,15 @@ async function sendWithHistory(
   };
 }
 
-// Session management - Phase 2 Core Chat Flow
+// Session management - Backend v1 API
 async function createSession(config: SessionConfig = {}): Promise<ChatSession> {
   const res = await fetch(`${API_BASE}/session`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Client': 'codeword-sprint',
-      'X-Version': '1.0.0',
     },
     body: JSON.stringify({
-      model: config.model || 'gpt-4o',
-      systemPrompt: config.systemPrompt || 'You are a supportive AI assistant for crisis support.',
-      guardrails: config.guardrails || ['crisis-detection', 'safety-first'],
-      userId: config.userId,
-      metadata: {
-        app: 'codeword',
-        surface: 'mobile',
-        platform: 'xcai-v2.0.0',
-      },
+      device_id: config.userId || `device-${Date.now()}`,
     }),
   });
 
@@ -156,10 +146,19 @@ async function createSession(config: SessionConfig = {}): Promise<ChatSession> {
     throw new Error(`Failed to create session: ${res.status}`);
   }
 
-  return res.json();
+  const data = await res.json();
+
+  // Transform backend response to our ChatSession format
+  return {
+    sessionId: data.session_id,
+    userId: config.userId || 'anonymous',
+    createdAt: Date.now(),
+    lastActivity: Date.now(),
+    metadata: data,
+  };
 }
 
-// Send message with streaming support
+// Send message to backend
 async function sendMessage(
   sessionId: string,
   message: string,
@@ -171,14 +170,11 @@ async function sendMessage(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-Client': 'codeword-sprint',
-      'X-Version': '1.0.0',
-      'X-Session-ID': sessionId,
     },
     body: JSON.stringify({
-      message,
+      session_id: sessionId,
+      message: message,
       stream: isStreaming,
-      timestamp: Date.now(),
     }),
   });
 
@@ -237,13 +233,19 @@ async function sendMessage(
     }
   }
 
-  // Non-streaming response
+  // Non-streaming response - parse backend format
   const data = await res.json();
   return {
     role: 'assistant',
-    content: data.content || '',
+    content: data.response?.response || '',
     timestamp: Date.now(),
-    id: data.messageId,
+    id: data.session_id + '-' + Date.now(),
+    metadata: {
+      crisis_level: data.response?.level || 1,
+      fibonacci_level: data.response?.fibonacci_level || 1,
+      eq_brain_active: data.response?.eq_brain_active || false,
+      critical_alert: data.critical_alert,
+    },
   };
 }
 
