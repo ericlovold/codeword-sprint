@@ -1,8 +1,8 @@
 // src/api/chat.ts
 import Constants from 'expo-constants';
 
-// Connect to Codeword Backend on port 9989
-const API_BASE = (Constants?.expoConfig?.extra as any)?.API_BASE ?? 'http://localhost:9989/v1';
+// Connect to Codeword Backend on port 9989 - use network IP for device/simulator access
+const API_BASE = (Constants?.expoConfig?.extra as any)?.API_BASE ?? 'http://192.168.0.94:9989/v1';
 
 export type ChatMessage = {
   role: 'user' | 'assistant' | 'system';
