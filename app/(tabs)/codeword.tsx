@@ -1,19 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TextInput,
-  Pressable,
-  FlatList,
-  KeyboardAvoidingView,
-  Platform,
-  ImageBackground,
-  Image,
-  Alert,
-} from 'react-native';
+import { View, Text, StyleSheet, FlatList, ImageBackground, Image, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../src/components/Icon';
+import ChatInput from '../../src/components/ChatInput';
 import { chatApi, ChatMessage } from '../../src/api/chat';
 import {
   scheduleCriticalNotification,
@@ -40,7 +29,6 @@ const initialMessages = [
 
 export default function CodewordScreen() {
   const insets = useSafeAreaInsets();
-  const [text, setText] = useState('');
   const [messages, setMessages] = useState(initialMessages);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -93,17 +81,16 @@ export default function CodewordScreen() {
     initializeSession();
   }, []);
 
-  const sendMessage = async () => {
-    if (text.trim().length === 0 || !sessionId || isLoading) return;
+  const sendMessage = async (messageText: string) => {
+    if (!messageText.trim() || !sessionId || isLoading) return;
 
     const userMessage = {
       id: Date.now().toString(),
       role: 'user' as const,
-      text: text.trim(),
+      text: messageText.trim(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    setText('');
     setIsLoading(true);
 
     // Auto-scroll to bottom
@@ -113,7 +100,7 @@ export default function CodewordScreen() {
 
     try {
       // Use real backend API
-      const response = await chatApi.sendMessage(sessionId, userMessage.text);
+      const response = await chatApi.sendMessage(sessionId, messageText.trim());
 
       const aiResponse = {
         id: response.id || Date.now().toString(),
@@ -219,30 +206,13 @@ export default function CodewordScreen() {
             style={styles.messagesContainer}
           />
 
-          {/* Input Bar - Fixed at bottom */}
-          <View style={[styles.inputContainer, { paddingBottom: insets.bottom + 80 }]}>
-            <View style={styles.inputWrapper}>
-              <TextInput
-                value={text}
-                onChangeText={setText}
-                placeholder="Type a message..."
-                placeholderTextColor="#999999"
-                style={styles.input}
-                multiline={false}
-                onSubmitEditing={sendMessage}
-                blurOnSubmit={true}
-                returnKeyType="send"
-                enablesReturnKeyAutomatically={true}
-              />
-            </View>
-            <Pressable
-              style={[styles.sendBtn, { opacity: isLoading ? 0.6 : 1 }]}
-              onPress={sendMessage}
-              disabled={isLoading || !sessionId}
-            >
-              <Text style={styles.arrowIcon}>{isLoading ? '...' : '→'}</Text>
-            </Pressable>
-          </View>
+          {/* Fancy Chat Input with Typing Indicator */}
+          <ChatInput
+            onSendMessage={sendMessage}
+            isLoading={isLoading}
+            placeholder="Ask Codeword anything..."
+            disabled={!sessionId}
+          />
         </View>
       </ImageBackground>
     </KeyboardAvoidingView>
