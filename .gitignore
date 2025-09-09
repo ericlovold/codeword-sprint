@@ -1,0 +1,14 @@
+node_modules/
+.expo/
+.expo-shared/
+dist/
+web-build/
+*.log.tmp/
+temp/
+.cache/
+**/.gradle/
+**/build/.DS_Store
+
+# Environment variables
+.env.local
+.env.production
