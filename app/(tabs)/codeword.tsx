@@ -181,64 +181,71 @@ export default function CodewordScreen() {
   }, [messages]);
 
   return (
-    <ImageBackground
-      source={require('../../assets/icons/Gradient BG.png')}
-      style={styles.container}
-      resizeMode="cover"
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      <ImageBackground
+        source={require('../../assets/icons/Gradient BG.png')}
+        style={styles.container}
+        resizeMode="cover"
       >
-        {/* Messages */}
-        <FlatList
-          ref={flatListRef}
-          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 200 }]}
-          data={messages}
-          keyExtractor={(m) => m.id}
-          renderItem={({ item }) => (
-            <View
-              style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.aiBubble]}
-            >
-              <Text
-                style={[styles.bubbleText, { color: item.role === 'user' ? '#FFFFFF' : '#1B1D22' }]}
+        <View style={styles.flex}>
+          {/* Messages */}
+          <FlatList
+            ref={flatListRef}
+            contentContainerStyle={[styles.listContent, { paddingBottom: 20 }]}
+            data={messages}
+            keyExtractor={(m) => m.id}
+            renderItem={({ item }) => (
+              <View
+                style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.aiBubble]}
               >
-                {item.text}
-              </Text>
-            </View>
-          )}
-          showsVerticalScrollIndicator={false}
-          onContentSizeChange={() => {
-            flatListRef.current?.scrollToEnd({ animated: true });
-          }}
-        />
+                <Text
+                  style={[
+                    styles.bubbleText,
+                    { color: item.role === 'user' ? '#FFFFFF' : '#1B1D22' },
+                  ]}
+                >
+                  {item.text}
+                </Text>
+              </View>
+            )}
+            showsVerticalScrollIndicator={false}
+            onContentSizeChange={() => {
+              flatListRef.current?.scrollToEnd({ animated: true });
+            }}
+            style={styles.messagesContainer}
+          />
 
-        {/* Input Bar - Above tab bar */}
-        <View style={[styles.inputContainer, { bottom: insets.bottom + 80 }]}>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              value={text}
-              onChangeText={setText}
-              placeholder="Type a message..."
-              placeholderTextColor="#999999"
-              style={styles.input}
-              multiline={false}
-              onSubmitEditing={sendMessage}
-              blurOnSubmit={true}
-              returnKeyType="send"
-              enablesReturnKeyAutomatically={true}
-            />
+          {/* Input Bar - Fixed at bottom */}
+          <View style={[styles.inputContainer, { paddingBottom: insets.bottom + 80 }]}>
+            <View style={styles.inputWrapper}>
+              <TextInput
+                value={text}
+                onChangeText={setText}
+                placeholder="Type a message..."
+                placeholderTextColor="#999999"
+                style={styles.input}
+                multiline={false}
+                onSubmitEditing={sendMessage}
+                blurOnSubmit={true}
+                returnKeyType="send"
+                enablesReturnKeyAutomatically={true}
+              />
+            </View>
+            <Pressable
+              style={[styles.sendBtn, { opacity: isLoading ? 0.6 : 1 }]}
+              onPress={sendMessage}
+              disabled={isLoading || !sessionId}
+            >
+              <Text style={styles.arrowIcon}>{isLoading ? '...' : '→'}</Text>
+            </Pressable>
           </View>
-          <Pressable
-            style={[styles.sendBtn, { opacity: isLoading ? 0.6 : 1 }]}
-            onPress={sendMessage}
-            disabled={isLoading || !sessionId}
-          >
-            <Text style={styles.arrowIcon}>{isLoading ? '...' : '→'}</Text>
-          </Pressable>
         </View>
-      </KeyboardAvoidingView>
-    </ImageBackground>
+      </ImageBackground>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -280,14 +287,19 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
 
+  // Messages
+  messagesContainer: {
+    flex: 1,
+  },
+
   // Input
   inputContainer: {
-    position: 'absolute',
-    left: 20,
-    right: 20,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    backgroundColor: 'transparent',
   },
   inputWrapper: {
     flex: 1,
