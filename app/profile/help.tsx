@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, SafeAreaView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -35,14 +35,14 @@ export default function HelpSupportScreen() {
     subtitle,
     onPress,
   }: {
-    icon: string;
+    icon: any;
     title: string;
     subtitle: string;
     onPress: () => void;
   }) => (
     <Pressable style={styles.resourceRow} onPress={onPress}>
       <View style={styles.resourceLeft}>
-        <Text style={styles.resourceIcon}>{icon}</Text>
+        <Image source={icon} style={styles.resourceIcon} resizeMode="contain" />
         <View style={styles.resourceTextContainer}>
           <Text style={styles.resourceTitle}>{title}</Text>
           <Text style={styles.resourceSubtitle}>{subtitle}</Text>
@@ -84,14 +84,14 @@ export default function HelpSupportScreen() {
           <Text style={styles.sectionTitle}>Resources</Text>
           <View style={styles.sectionContent}>
             <ResourceRow
-              icon="❓"
+              icon={require('../../assets/icons/CWIcons002/CrisisHotlineIcon.png')}
               title="Privacy Policy"
               subtitle="How we protect your data"
               onPress={() => console.log('Open Privacy Policy')}
             />
             <View style={styles.divider} />
             <ResourceRow
-              icon="📄"
+              icon={require('../../assets/icons/CWIcons002/PrivacyPolicyIcon.png')}
               title="Terms of Service"
               subtitle="Our terms and conditions"
               onPress={() => console.log('Open Terms of Service')}
@@ -193,10 +193,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   resourceIcon: {
-    fontSize: 24,
+    width: 24,
+    height: 24,
     marginRight: 16,
-    width: 28,
-    textAlign: 'center',
   },
   resourceTextContainer: {
     flex: 1,

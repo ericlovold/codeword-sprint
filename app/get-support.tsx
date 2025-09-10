@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, Pressable, SafeAreaView, Modal, Linking } from 
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import CWTabBar from '../src/ui/CWTabBar';
+import SendCodewordModal from '../src/components/SendCodewordModal';
 
 export default function GetSupportScreen() {
   const router = useRouter();
@@ -10,14 +12,9 @@ export default function GetSupportScreen() {
   const [showCodewordModal, setShowCodewordModal] = useState(false);
 
   const handleSendCodeword = () => {
-    // Check if codeword is set up (simulate not set up for now)
-    const hasCodeword = false; // This would come from your app state/storage
-
-    if (hasCodeword) {
-      router.push('/codeword');
-    } else {
-      setShowCodewordModal(true);
-    }
+    // For now, always show the send codeword modal
+    // In a real app, you'd check if allies are set up first
+    setShowCodewordModal(true);
   };
 
   const handleSetupCodeword = () => {
@@ -42,13 +39,40 @@ export default function GetSupportScreen() {
     router.push('/(tabs)/profile');
   };
 
+  // Mock tab bar props to enable navigation
+  const mockTabBarProps = {
+    state: {
+      index: -1, // No active tab since this is a separate screen
+      routes: [
+        { key: 'codeword', name: 'codeword' },
+        { key: 'library', name: 'library' },
+        { key: 'launchpad', name: 'launchpad' },
+        { key: 'coach', name: 'coach' },
+        { key: 'profile', name: 'profile' },
+      ],
+    },
+    navigation: {
+      navigate: (routeName: string) => {
+        // Navigate to the tab - always allow navigation since this is not a tab screen
+        router.replace(`/(tabs)/${routeName}`);
+      },
+      emit: () => ({ defaultPrevented: false }),
+    },
+    descriptors: {
+      codeword: { options: { title: 'Codeword' } },
+      library: { options: { title: 'Guides' } },
+      launchpad: { options: { title: '' } },
+      coach: { options: { title: 'Coach' } },
+      profile: { options: { title: 'Profile' } },
+    },
+  };
+
   return (
     <View style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.brandText}>Codeword;</Text>
             <Text style={styles.pageTitle}>Get Support</Text>
           </View>
 
@@ -90,39 +114,11 @@ export default function GetSupportScreen() {
         </View>
       </SafeAreaView>
 
-      {/* Codeword Not Set Up Modal */}
-      <Modal
-        visible={showCodewordModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={handleCancelModal}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Codeword Not Set Up</Text>
-              <Pressable onPress={handleCancelModal} style={styles.closeButton}>
-                <Text style={styles.closeText}>×</Text>
-              </Pressable>
-            </View>
+      {/* Add Tab Bar for Navigation */}
+      <CWTabBar {...mockTabBarProps} />
 
-            <Text style={styles.modalText}>
-              You haven't set up a codeword with an ally yet. Please finish setting up your
-              codeword.
-            </Text>
-
-            <View style={styles.modalActions}>
-              <Pressable style={styles.setupButton} onPress={handleSetupCodeword}>
-                <Text style={styles.setupButtonText}>Set Up Codeword</Text>
-              </Pressable>
-
-              <Pressable style={styles.cancelButton} onPress={handleCancelModal}>
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </Pressable>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      {/* Send Codeword Modal */}
+      <SendCodewordModal visible={showCodewordModal} onClose={handleCancelModal} />
     </View>
   );
 }
@@ -160,7 +156,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   primaryButton: {
-    backgroundColor: '#B85C5C',
+    backgroundColor: '#C53030',
     borderRadius: 24,
     paddingVertical: 20,
     paddingHorizontal: 24,
@@ -203,13 +199,13 @@ const styles = StyleSheet.create({
   },
   secondaryButtonSubtitle: {
     fontSize: 14,
-    color: '#B85C5C',
+    color: '#C53030',
     fontWeight: '500',
   },
   emergencyButtonTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#B85C5C',
+    color: '#C53030',
   },
   buttonIcon: {
     fontSize: 24,
@@ -220,75 +216,5 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#666666',
     fontWeight: '300',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 32,
-    width: '100%',
-    maxWidth: 400,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#1B1D22',
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F0F0F0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  closeText: {
-    fontSize: 20,
-    color: '#666666',
-    fontWeight: '300',
-  },
-  modalText: {
-    fontSize: 16,
-    color: '#666666',
-    lineHeight: 24,
-    marginBottom: 32,
-  },
-  modalActions: {
-    gap: 12,
-  },
-  setupButton: {
-    backgroundColor: '#642975',
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  setupButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  cancelButton: {
-    backgroundColor: '#F8F8F8',
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#666666',
   },
 });

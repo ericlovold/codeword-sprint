@@ -1,10 +1,10 @@
 // src/api/chat.ts
 import Constants from 'expo-constants';
+import { apiFetch, ApiError } from './base';
 
-// Centralized API configuration from app.config.js
+// Additional configuration from app.config.js
 const config = Constants?.expoConfig?.extra as any;
-const API_BASE = config?.API_BASE ?? 'http://192.168.0.94:9989/v1';
-const WS_URL = config?.WS_URL ?? 'ws://192.168.0.94:9989/ws';
+const WS_URL = config?.WS_URL ?? 'ws://localhost:9989/ws';
 const ENVIRONMENT = config?.environment ?? 'development';
 const BUILD_TIME = config?.buildTime ?? 'unknown';
 
@@ -57,13 +57,8 @@ async function sendOnce(
 
   logNetworkCall('/chat/completions', 'POST', { messageCount: messages.length });
 
-  const res = await fetch(`${API_BASE}/chat/completions`, {
+  const data = await apiFetch<any>('/chat/completions', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Client': 'codeword-sprint',
-      'X-Version': '1.0.0',
-    },
     body: JSON.stringify({
       model: 'gpt-4o', // Use GPT-4o as primary model
       stream: false,
@@ -76,20 +71,6 @@ async function sendOnce(
       },
     }),
   });
-
-  if (!res.ok) {
-    // Enhanced error handling for different status codes
-    const errorText = await res.text();
-    if (res.status === 429) {
-      throw new Error('Rate limit exceeded. Please wait a moment before sending another message.');
-    } else if (res.status >= 500) {
-      throw new Error('Server temporarily unavailable. Please try again in a moment.');
-    } else {
-      throw new Error(`Request failed: ${res.status} - ${errorText}`);
-    }
-  }
-
-  const data = await res.json();
 
   // Handle the response format from XCAi platform
   const message = data?.choices?.[0]?.message;
@@ -147,9 +128,9 @@ async function sendWithHistory(
 
 // Session management - Backend v1 API
 async function createSession(config: SessionConfig = {}): Promise<ChatSession> {
-  logNetworkCall('/session', 'POST', { userId: config.userId });
+  logNetworkCall('/api/session', 'POST', { userId: config.userId });
 
-  const res = await fetch(`${API_BASE}/session`, {
+  const res = await fetch(`${API_BASE}/api/session`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -183,9 +164,9 @@ async function sendMessage(
 ): Promise<ChatMessage> {
   const isStreaming = !!onStream;
 
-  logNetworkCall('/message', 'POST', { sessionId, streaming: isStreaming });
+  logNetworkCall('/api/chat', 'POST', { sessionId, streaming: isStreaming });
 
-  const res = await fetch(`${API_BASE}/message`, {
+  const res = await fetch(`${API_BASE}/api/chat`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -256,14 +237,11 @@ async function sendMessage(
   const data = await res.json();
   return {
     role: 'assistant',
-    content: data.response?.response || '',
+    content: data.response || '',
     timestamp: Date.now(),
     id: data.session_id + '-' + Date.now(),
     metadata: {
-      crisis_level: data.response?.level || 1,
-      fibonacci_level: data.response?.fibonacci_level || 1,
-      eq_brain_active: data.response?.eq_brain_active || false,
-      critical_alert: data.critical_alert,
+      crisis_level: data.crisis_level || 1,
     },
   };
 }

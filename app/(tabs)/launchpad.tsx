@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import SendCodewordModal from '../../src/components/SendCodewordModal';
 
 export default function LaunchpadScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const [showCodewordModal, setShowCodewordModal] = useState(false);
 
   return (
     <View style={styles.container}>
@@ -17,6 +19,12 @@ export default function LaunchpadScreen() {
           <Text style={styles.title}>Send a Codeword</Text>
           <Text style={styles.subtitle}>Your story continues</Text>
         </View>
+
+        {/* Main Codeword Button */}
+        <Pressable style={styles.codewordButton} onPress={() => setShowCodewordModal(true)}>
+          <Text style={styles.codewordButtonText}>Send Codeword</Text>
+          <Text style={styles.codewordButtonSubtext}>Emergency alert to your ally</Text>
+        </Pressable>
 
         <View style={styles.cards}>
           <Pressable style={styles.card} onPress={() => router.push('/codeword')}>
@@ -35,6 +43,9 @@ export default function LaunchpadScreen() {
           </Pressable>
         </View>
       </ScrollView>
+
+      {/* Send Codeword Modal */}
+      <SendCodewordModal visible={showCodewordModal} onClose={() => setShowCodewordModal(false)} />
     </View>
   );
 }
@@ -61,6 +72,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#6B6E76',
     fontWeight: '500',
+  },
+  codewordButton: {
+    backgroundColor: '#FF4444',
+    borderRadius: 24,
+    paddingVertical: 24,
+    paddingHorizontal: 24,
+    marginBottom: 30,
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#FF4444',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.3,
+        shadowRadius: 16,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  codewordButtonText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 4,
+  },
+  codewordButtonSubtext: {
+    fontSize: 14,
+    color: '#FFFFFF',
+    opacity: 0.9,
   },
   cards: {
     gap: 16,

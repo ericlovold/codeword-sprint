@@ -4,9 +4,9 @@ export default ({ config }) => {
   // Centralized API configuration
   const apiConfig = {
     development: {
-      API_BASE: process.env.API_BASE || 'http://192.168.0.94:9989/v1',
-      WS_URL: process.env.WS_URL || 'ws://192.168.0.94:9989/ws',
-      API_BASE_URL: process.env.API_BASE_URL || 'http://192.168.0.94:9989',
+      API_BASE: process.env.API_BASE || 'http://localhost:9989',
+      WS_URL: process.env.WS_URL || 'ws://localhost:9989/ws',
+      API_BASE_URL: process.env.API_BASE_URL || 'http://localhost:9989',
     },
     staging: {
       API_BASE: 'https://api.codeword.app/v1',

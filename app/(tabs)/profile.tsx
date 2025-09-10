@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -8,42 +8,42 @@ const menuItems = [
     id: 'personal',
     title: 'Personal Information',
     subtitle: 'Manage your profile details',
-    icon: '👤',
+    icon: require('../../assets/icons/CWIcons002/PersonalInformationIcon.png'),
     route: '/profile/personal-info',
   },
   {
     id: 'notifications',
     title: 'Notifications',
     subtitle: 'Customize your notification preferences',
-    icon: '🔔',
+    icon: require('../../assets/icons/CWIcons002/NotificationsIcon.png'),
     route: '/profile/notifications',
   },
   {
     id: 'privacy',
     title: 'Privacy & Security',
     subtitle: 'Control your privacy settings',
-    icon: '🛡️',
+    icon: require('../../assets/icons/CWIcons002/PrivacyIcon.png'),
     route: '/profile/privacy',
   },
   {
     id: 'help',
     title: 'Help & Support',
     subtitle: 'Get help and contact support',
-    icon: '❓',
+    icon: require('../../assets/icons/CWIcons002/HelpSupportIcon.png'),
     route: '/profile/help',
   },
   {
     id: 'settings',
     title: 'App Settings',
     subtitle: 'Customize app behavior',
-    icon: '⚙️',
+    icon: require('../../assets/icons/CWIcons002/AppSettingsIcon.png'),
     route: '/profile/app-settings',
   },
   {
     id: 'signout',
     title: 'Sign Out',
     subtitle: 'Sign out of your account',
-    icon: '➜',
+    icon: require('../../assets/icons/CWIcons002/SignOutIcon.png'),
     route: null,
     action: 'signout',
     color: '#FF3B30',
@@ -82,7 +82,7 @@ export default function ProfileScreen() {
               <Pressable style={styles.menuItem} onPress={() => handleItemPress(item)}>
                 <View style={styles.menuItemLeft}>
                   <View style={styles.iconContainer}>
-                    <Text style={styles.icon}>{item.icon}</Text>
+                    <Image source={item.icon} style={styles.iconImage} resizeMode="contain" />
                   </View>
                   <View style={styles.textContainer}>
                     <Text style={[styles.menuTitle, item.color && { color: item.color }]}>
@@ -171,8 +171,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8F8F8',
     borderRadius: 12,
   },
-  icon: {
-    fontSize: 22,
+  iconImage: {
+    width: 22,
+    height: 22,
   },
   textContainer: {
     flex: 1,

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Codeword",
-    "slug": "codeword-sprint",
+    "slug": "codeword",
     "owner": "xcai-aiia",
     "scheme": "codeword",
     "version": "1.0.0",
@@ -16,6 +16,7 @@
     "plugins": [
       "expo-router",
       "expo-font",
+      "expo-apple-authentication",
       [
         "expo-notifications",
         {
@@ -30,11 +31,13 @@
       ]
     ],
     "extra": {
-      "API_BASE": "http://localhost:9988",
-      "API_BASE_URL": "http://localhost:8000",
-      "WS_URL": "ws://localhost:8000/ws/chat",
+      "EXPO_PUBLIC_API_BASE": "https://api.codeword.xcai.app",
+      "API_BASE_URL": "https://api.codeword.xcai.app",
+      "WS_URL": "wss://api.codeword.xcai.app/ws/chat",
       "CLIENT_NAME": "codeword-app",
-      "CLIENT_VERSION": "0.1.0",
+      "CLIENT_VERSION": "1.0.0",
+      "GOOGLE_IOS_CLIENT_ID": "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com",
+      "GOOGLE_ANDROID_CLIENT_ID": "YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com",
       "router": {},
       "eas": {
         "projectId": "1f0b6694-1dfd-4f27-99b4-c2745adb21f7"
@@ -44,6 +47,7 @@
       "bundleIdentifier": "com.codeword.app",
       "buildNumber": "1",
       "supportsTablet": false,
+      "usesAppleSignIn": true,
       "config": {
         "usesNonExemptEncryption": false
       },
@@ -53,10 +57,11 @@
       },
       "infoPlist": {
         "UIBackgroundModes": ["audio", "fetch", "remote-notification"],
-        "NSUserNotificationsCriticalAlertUsageDescription": "Codeword uses critical alerts to notify you of urgent support messages even when your device is silenced.",
-        "NSCameraUsageDescription": "Codeword needs camera access to share photos with your support network.",
-        "NSPhotoLibraryUsageDescription": "Codeword needs photo library access to share photos with your support network.",
-        "NSLocationWhenInUseUsageDescription": "Codeword can optionally share your location with trusted contacts during emergencies.",
+        "NSUserNotificationsCriticalAlertUsageDescription": "Codeword sends critical alerts to ensure you receive urgent support messages from your trusted allies, even when your device is in Do Not Disturb mode or silenced. This feature is essential for the emergency support functionality.",
+        "NSContactsUsageDescription": "Codeword accesses your contacts to help you easily select and invite trusted allies to your support network. Your contact information is only used to facilitate connections within your chosen support circle.",
+        "NSCameraUsageDescription": "Codeword uses camera access to allow you to share photos and visual updates with your support network during check-ins and when requesting help.",
+        "NSPhotoLibraryUsageDescription": "Codeword accesses your photo library to let you share meaningful images with your support network, helping to communicate your current state and experiences.",
+        "NSLocationWhenInUseUsageDescription": "Codeword can share your location with your chosen allies during emergency situations or check-ins, helping them provide better support and assistance when needed.",
         "ITSAppUsesNonExemptEncryption": false,
         "LSRequiresIPhoneOS": true,
         "UIRequiredDeviceCapabilities": ["arm64"],

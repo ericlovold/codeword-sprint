@@ -3,191 +3,173 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Pressable,
   SafeAreaView,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function CreateCodewordScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { ally, name } = useLocalSearchParams();
   const [codeword, setCodeword] = useState('');
-  const [allyName, setAllyName] = useState('');
-  const [allyPhone, setAllyPhone] = useState('');
 
-  const handleCreateCodeword = () => {
-    // Save codeword setup logic here
-    console.log('Creating codeword:', { codeword, allyName, allyPhone });
-    // Navigate back to get support or main flow
+  const allyName = typeof name === 'string' ? decodeURIComponent(name) : 'your ally';
+
+  const handleBack = () => {
     router.back();
   };
 
-  const handleCancel = () => {
-    router.back();
+  const handleContinue = () => {
+    if (codeword.trim()) {
+      router.push(
+        `/review-codeword?ally=${ally}&name=${encodeURIComponent(allyName)}&codeword=${encodeURIComponent(codeword.trim())}`,
+      );
+    }
   };
+
+  const isFormValid = codeword.trim().length > 0;
 
   return (
-    <LinearGradient
-      colors={['#642975', '#8B5FBF']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView
-          contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.logoText}>
-              Codeword<Text style={styles.semicolon}>;</Text>
-            </Text>
-          </View>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Pressable onPress={handleBack} style={styles.backButton}>
+            <Text style={styles.backIcon}>‹</Text>
+          </Pressable>
+        </View>
 
-          {/* Title */}
-          <Text style={styles.title}>Set Up Your Codeword</Text>
+        {/* Content */}
+        <View style={styles.content}>
+          <Text style={styles.title}>Create a Codeword with {allyName}</Text>
           <Text style={styles.subtitle}>
-            Create a secret word and add an ally who will respond when you need support.
+            Your Codeword is a unique and personal word that you will use with your ally.
           </Text>
 
-          {/* Form */}
-          <View style={styles.formContainer}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Your Codeword</Text>
-              <TextInput
-                style={styles.input}
-                value={codeword}
-                onChangeText={setCodeword}
-                placeholder="Enter a secret word..."
-                placeholderTextColor="#999999"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Ally Name</Text>
-              <TextInput
-                style={styles.input}
-                value={allyName}
-                onChangeText={setAllyName}
-                placeholder="Enter your ally's name"
-                placeholderTextColor="#999999"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Ally Phone Number</Text>
-              <TextInput
-                style={styles.input}
-                value={allyPhone}
-                onChangeText={setAllyPhone}
-                placeholder="Enter phone number"
-                placeholderTextColor="#999999"
-                keyboardType="phone-pad"
-              />
-            </View>
+          {/* Input Field */}
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Enter your codeword"
+              placeholderTextColor="#999999"
+              value={codeword}
+              onChangeText={setCodeword}
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoFocus={true}
+            />
           </View>
+        </View>
 
-          {/* Actions */}
-          <View style={styles.actions}>
-            <Pressable style={styles.createButton} onPress={handleCreateCodeword}>
-              <Text style={styles.createButtonText}>Create Codeword</Text>
-            </Pressable>
-
-            <Pressable style={styles.cancelButton} onPress={handleCancel}>
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </Pressable>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </LinearGradient>
+        {/* Continue Button */}
+        <View style={[styles.footer, { paddingBottom: insets.bottom + 20 }]}>
+          <Pressable
+            style={[styles.continueButton, !isFormValid && styles.continueButtonDisabled]}
+            onPress={handleContinue}
+            disabled={!isFormValid}
+          >
+            <Text
+              style={[styles.continueButtonText, !isFormValid && styles.continueButtonTextDisabled]}
+            >
+              Continue
+            </Text>
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F5F3F5',
   },
-  safeArea: {
+  flex: {
     flex: 1,
   },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    height: 50,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 40,
   },
-  logoText: {
+  backIcon: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    letterSpacing: -0.5,
+    color: '#1B1D22',
+    fontWeight: '300',
   },
-  semicolon: {
-    color: '#4BE3C1',
+  content: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 40,
   },
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#FFFFFF',
-    marginBottom: 16,
+    color: '#1B1D22',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 40,
   },
   subtitle: {
     fontSize: 16,
-    color: '#FFFFFF',
-    opacity: 0.8,
+    color: '#666666',
+    textAlign: 'center',
     lineHeight: 24,
-    marginBottom: 40,
+    marginBottom: 60,
+    maxWidth: 320,
   },
-  formContainer: {
-    gap: 24,
-    marginBottom: 40,
+  inputContainer: {
+    width: '100%',
+    maxWidth: 400,
   },
-  inputGroup: {
-    gap: 8,
+  textInput: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    fontSize: 18,
+    color: '#1B1D22',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    textAlign: 'center',
   },
-  label: {
+  footer: {
+    paddingHorizontal: 20,
+  },
+  continueButton: {
+    backgroundColor: '#9CA3AF',
+    borderRadius: 25,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  continueButtonDisabled: {
+    backgroundColor: '#9CA3AF',
+  },
+  continueButtonText: {
     fontSize: 16,
     fontWeight: '600',
     color: '#FFFFFF',
   },
-  input: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    fontSize: 16,
-    color: '#1B1D22',
-  },
-  actions: {
-    gap: 16,
-  },
-  createButton: {
-    backgroundColor: '#4BE3C1',
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  createButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1B1D22',
-  },
-  cancelButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderRadius: 16,
-    paddingVertical: 16,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+  continueButtonTextDisabled: {
     color: '#FFFFFF',
   },
 });

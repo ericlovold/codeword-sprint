@@ -1,8 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, ImageBackground, Image, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ImageBackground,
+  Image,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  TextInput,
+  Pressable,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from '../../src/components/Icon';
-import ChatInput from '../../src/components/ChatInput';
 import { chatApi, ChatMessage } from '../../src/api/chat';
 import {
   scheduleCriticalNotification,
@@ -32,17 +43,14 @@ export default function CodewordScreen() {
   const [messages, setMessages] = useState(initialMessages);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [inputText, setInputText] = useState('');
   const flatListRef = useRef<FlatList>(null);
 
   // Initialize chat session on component mount with fallback URLs
   useEffect(() => {
     const initializeSession = async () => {
       // Try multiple URLs as fallback
-      const urls = [
-        'http://192.168.0.94:9989/v1',
-        'http://localhost:9989/v1',
-        'http://127.0.0.1:9989/v1',
-      ];
+      const urls = ['http://localhost:9989', 'http://127.0.0.1:9989', 'http://192.168.0.94:9989'];
 
       console.log('🔄 Attempting to connect to backend...');
 
@@ -51,7 +59,7 @@ export default function CodewordScreen() {
           console.log(`🔌 Trying URL: ${url}`);
 
           // Create session directly with fetch to test connection
-          const response = await fetch(`${url}/session`, {
+          const response = await fetch(`${url}/api/session`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ device_id: `device-${Date.now()}` }),
@@ -81,8 +89,11 @@ export default function CodewordScreen() {
     initializeSession();
   }, []);
 
-  const sendMessage = async (messageText: string) => {
-    if (!messageText.trim() || !sessionId || isLoading) return;
+  const handleSendMessage = async () => {
+    if (!inputText.trim() || !sessionId || isLoading) return;
+
+    const messageText = inputText.trim();
+    setInputText(''); // Clear input immediately
 
     const userMessage = {
       id: Date.now().toString(),
@@ -168,54 +179,66 @@ export default function CodewordScreen() {
   }, [messages]);
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    <ImageBackground
+      source={require('../../assets/icons/Gradient BG.png')}
+      style={styles.container}
+      resizeMode="cover"
     >
-      <ImageBackground
-        source={require('../../assets/icons/Gradient BG.png')}
-        style={styles.container}
-        resizeMode="cover"
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 20}
       >
-        <View style={styles.flex}>
-          {/* Messages */}
-          <FlatList
-            ref={flatListRef}
-            contentContainerStyle={[styles.listContent, { paddingBottom: 20 }]}
-            data={messages}
-            keyExtractor={(m) => m.id}
-            renderItem={({ item }) => (
-              <View
-                style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.aiBubble]}
+        {/* Messages */}
+        <FlatList
+          ref={flatListRef}
+          contentContainerStyle={[styles.listContent, { paddingBottom: 100 }]}
+          data={messages}
+          keyExtractor={(m) => m.id}
+          renderItem={({ item }) => (
+            <View
+              style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.aiBubble]}
+            >
+              <Text
+                style={[styles.bubbleText, { color: item.role === 'user' ? '#FFFFFF' : '#1B1D22' }]}
               >
-                <Text
-                  style={[
-                    styles.bubbleText,
-                    { color: item.role === 'user' ? '#FFFFFF' : '#1B1D22' },
-                  ]}
-                >
-                  {item.text}
-                </Text>
-              </View>
-            )}
-            showsVerticalScrollIndicator={false}
-            onContentSizeChange={() => {
-              flatListRef.current?.scrollToEnd({ animated: true });
-            }}
-            style={styles.messagesContainer}
-          />
+                {item.text}
+              </Text>
+            </View>
+          )}
+          showsVerticalScrollIndicator={false}
+          onContentSizeChange={() => {
+            flatListRef.current?.scrollToEnd({ animated: true });
+          }}
+          style={styles.messagesContainer}
+        />
 
-          {/* Fancy Chat Input with Typing Indicator */}
-          <ChatInput
-            onSendMessage={sendMessage}
-            isLoading={isLoading}
+        {/* Simple Chat Input - Fixed at bottom */}
+        <View style={[styles.inputContainer, { paddingBottom: insets.bottom + 90 }]}>
+          <TextInput
+            style={styles.textInput}
+            value={inputText}
+            onChangeText={setInputText}
             placeholder="Ask Codeword anything..."
-            disabled={!sessionId}
+            placeholderTextColor="#999999"
+            editable={!isLoading && !!sessionId}
+            onSubmitEditing={handleSendMessage}
+            returnKeyType="send"
+            multiline={false}
           />
+          <Pressable
+            style={[
+              styles.sendButton,
+              (!inputText.trim() || !sessionId || isLoading) && styles.sendButtonDisabled,
+            ]}
+            onPress={handleSendMessage}
+            disabled={!inputText.trim() || !sessionId || isLoading}
+          >
+            <Text style={styles.sendButtonText}>{isLoading ? '...' : '→'}</Text>
+          </Pressable>
         </View>
-      </ImageBackground>
-    </KeyboardAvoidingView>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 }
 
@@ -269,37 +292,39 @@ const styles = StyleSheet.create({
     gap: 12,
     paddingHorizontal: 20,
     paddingTop: 12,
-    backgroundColor: 'transparent',
+    paddingBottom: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
   },
-  inputWrapper: {
+  textInput: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 22,
     paddingHorizontal: 16,
-    height: 44,
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
+    paddingVertical: 10,
+    fontSize: 16,
+    color: '#111827',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    maxHeight: 100,
   },
-  input: {
-    fontSize: 15,
-    color: '#1B1D22',
-    height: '100%',
-  },
-  sendBtn: {
+  sendButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
     backgroundColor: '#642975',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 10,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  arrowIcon: {
+  sendButtonDisabled: {
+    backgroundColor: '#9CA3AF',
+  },
+  sendButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: 'bold',

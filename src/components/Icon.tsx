@@ -5,9 +5,9 @@ type IconName = 'home' | 'guides' | 'coach' | 'profile' | 'info' | 'send' | 'sem
 
 // Map icon names to actual PNG assets
 const iconMap = {
-  home: require('../../assets/icons/tabs/TabChat.png'),
+  home: require('../../assets/icons/tabs/TabCoach.png'), // Home icon shows AI icon (goes to chat)
   guides: require('../../assets/icons/tabs/TabLibrary.png'),
-  coach: require('../../assets/icons/tabs/TabCoach.png'),
+  coach: require('../../assets/icons/tabs/TabChat.png'), // Coach icon shows home icon (goes to "how are you feeling")
   profile: require('../../assets/icons/tabs/TabProfile.png'),
   info: require('../../assets/icons/tabs/TabSemicolon.png'),
   semicolon: require('../../assets/icons/semicolon.png'),

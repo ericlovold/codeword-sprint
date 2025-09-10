@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
+  StyleSheet,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -75,39 +76,44 @@ const TypingIndicator: React.FC<{ visible: boolean }> = ({ visible }) => {
 
   return (
     <Animated.View
-      className="flex-row items-center px-5 py-2 mb-1"
-      style={{
-        opacity: fadeAnim,
-        transform: [
-          {
-            translateY: fadeAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [10, 0],
-            }),
-          },
-        ],
-      }}
+      style={[
+        styles.typingContainer,
+        {
+          opacity: fadeAnim,
+          transform: [
+            {
+              translateY: fadeAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [10, 0],
+              }),
+            },
+          ],
+        },
+      ]}
     >
-      <Text className="text-sm text-gray-500 italic mr-2">Codeword is typing</Text>
-      <View className="flex-row items-center space-x-1">
+      <Text style={styles.typingText}>Codeword is typing</Text>
+      <View style={styles.dotsContainer}>
         {[dot1, dot2, dot3].map((dot, index) => (
           <Animated.View
             key={index}
-            className="w-1.5 h-1.5 rounded-full bg-red-800"
-            style={{
-              opacity: dot.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0.3, 1],
-              }),
-              transform: [
-                {
-                  scale: dot.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0.8, 1.2],
-                  }),
-                },
-              ],
-            }}
+            style={[
+              styles.dot,
+              {
+                opacity: dot.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.3, 1],
+                }),
+                transform: [
+                  {
+                    scale: dot.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0.8, 1.2],
+                    }),
+                  },
+                ],
+                marginLeft: index > 0 ? 4 : 0,
+              },
+            ]}
           />
         ))}
       </View>
@@ -136,35 +142,27 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   const isButtonDisabled = !message.trim() || disabled || isLoading;
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
-      className="absolute bottom-0 left-0 right-0 bg-transparent"
-    >
+    <View style={styles.keyboardContainer}>
       {/* Typing Indicator */}
       <TypingIndicator visible={isLoading} />
 
       {/* Input Container with SafeAreaView */}
       <View
-        className="pt-3 bg-white/98 border-t border-gray-200 shadow-lg"
-        style={{
-          paddingBottom: insets.bottom > 0 ? insets.bottom : 16,
-          paddingHorizontal: 16,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.05,
-          shadowRadius: 4,
-          elevation: 5,
-        }}
+        style={[
+          styles.inputContainer,
+          {
+            paddingBottom: insets.bottom > 0 ? insets.bottom : 16,
+          },
+        ]}
       >
-        <View className="flex-row items-center space-x-3">
+        <View style={styles.inputRow}>
           <TextInput
             ref={inputRef}
             value={message}
             onChangeText={setMessage}
             placeholder={placeholder}
             placeholderTextColor="#999999"
-            className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 text-base text-gray-900 border border-gray-200"
+            style={styles.textInput}
             multiline={false}
             editable={!disabled && !isLoading}
             onSubmitEditing={handleSend}
@@ -172,36 +170,107 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             returnKeyType="send"
             enablesReturnKeyAutomatically={true}
             maxLength={500}
-            style={{
-              maxHeight: 100,
-            }}
           />
 
           <Pressable
             onPress={handleSend}
             disabled={isButtonDisabled}
-            className={`w-11 h-11 rounded-full justify-center items-center ${
-              isButtonDisabled
-                ? 'bg-gray-400'
-                : 'bg-red-800 shadow-lg shadow-red-800/20 active:scale-95'
-            }`}
             style={({ pressed }) => [
+              styles.sendButton,
+              isButtonDisabled ? styles.sendButtonDisabled : styles.sendButtonActive,
               {
                 transform: pressed && !isButtonDisabled ? [{ scale: 0.95 }] : [{ scale: 1 }],
-                shadowColor: '#8B0000',
-                shadowOffset: { width: 0, height: 2 },
-                shadowOpacity: 0.2,
-                shadowRadius: 4,
-                elevation: 3,
               },
             ]}
           >
-            <Text className="text-white text-lg font-bold">{isLoading ? '...' : '→'}</Text>
+            <Text style={styles.sendButtonText}>{isLoading ? '...' : '→'}</Text>
           </Pressable>
         </View>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  keyboardContainer: {
+    backgroundColor: 'transparent',
+  },
+  typingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    marginBottom: 4,
+  },
+  typingText: {
+    fontSize: 14,
+    color: '#6B7280',
+    fontStyle: 'italic',
+    marginRight: 8,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#991B1B',
+  },
+  inputContainer: {
+    paddingTop: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.98)',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB',
+    paddingHorizontal: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  textInput: {
+    flex: 1,
+    backgroundColor: '#F3F4F6',
+    borderRadius: 22,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 16,
+    color: '#111827',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    maxHeight: 100,
+  },
+  sendButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  sendButtonActive: {
+    backgroundColor: '#991B1B',
+    shadowColor: '#8B0000',
+  },
+  sendButtonDisabled: {
+    backgroundColor: '#9CA3AF',
+    shadowColor: '#000',
+  },
+  sendButtonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+});
 
 export default ChatInput;

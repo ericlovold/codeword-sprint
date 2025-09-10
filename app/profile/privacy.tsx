@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, SafeAreaView, Switch } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+  SafeAreaView,
+  Switch,
+  Image,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -29,7 +38,7 @@ export default function PrivacySecurityScreen() {
     actionText,
     onPress,
   }: {
-    icon: string;
+    icon: any;
     title: string;
     subtitle: string;
     actionText: string;
@@ -37,7 +46,7 @@ export default function PrivacySecurityScreen() {
   }) => (
     <Pressable style={styles.actionRow} onPress={onPress}>
       <View style={styles.actionLeft}>
-        <Text style={styles.actionIcon}>{icon}</Text>
+        <Image source={icon} style={styles.actionIcon} resizeMode="contain" />
         <View style={styles.actionTextContainer}>
           <Text style={styles.actionTitle}>{title}</Text>
           <Text style={styles.actionSubtitle}>{subtitle}</Text>
@@ -53,14 +62,14 @@ export default function PrivacySecurityScreen() {
     subtitle,
     settingKey,
   }: {
-    icon: string;
+    icon: any;
     title: string;
     subtitle: string;
     settingKey: keyof PrivacySettings;
   }) => (
     <View style={styles.toggleRow}>
       <View style={styles.toggleLeft}>
-        <Text style={styles.toggleIcon}>{icon}</Text>
+        <Image source={icon} style={styles.toggleIcon} resizeMode="contain" />
         <View style={styles.toggleTextContainer}>
           <Text style={styles.toggleTitle}>{title}</Text>
           <Text style={styles.toggleSubtitle}>{subtitle}</Text>
@@ -83,7 +92,7 @@ export default function PrivacySecurityScreen() {
     isDestructive = false,
     onPress,
   }: {
-    icon: string;
+    icon: any;
     title: string;
     subtitle: string;
     isDestructive?: boolean;
@@ -93,7 +102,11 @@ export default function PrivacySecurityScreen() {
       style={[styles.dataRow, isDestructive && styles.dataRowDestructive]}
       onPress={onPress}
     >
-      <Text style={[styles.dataIcon, isDestructive && styles.dataIconDestructive]}>{icon}</Text>
+      <Image
+        source={icon}
+        style={[styles.dataIcon, isDestructive && styles.dataIconDestructive]}
+        resizeMode="contain"
+      />
       <View style={styles.dataTextContainer}>
         <Text style={[styles.dataTitle, isDestructive && styles.dataTitleDestructive]}>
           {title}
@@ -129,7 +142,7 @@ export default function PrivacySecurityScreen() {
           <Text style={styles.sectionTitle}>Security</Text>
           <View style={styles.sectionContent}>
             <ActionRow
-              icon="🔒"
+              icon={require('../../assets/icons/CWIcons002/PasswordChangeIcon.png')}
               title="Change Password"
               subtitle="Update your account password"
               actionText="Change"
@@ -138,7 +151,11 @@ export default function PrivacySecurityScreen() {
             <View style={styles.divider} />
             <View style={styles.toggleRow}>
               <View style={styles.toggleLeft}>
-                <Text style={styles.toggleIcon}>📱</Text>
+                <Image
+                  source={require('../../assets/icons/CWIcons002/TwoFactorAuthIcon.png')}
+                  style={styles.toggleIcon}
+                  resizeMode="contain"
+                />
                 <View style={styles.toggleTextContainer}>
                   <Text style={styles.toggleTitle}>Two-Factor Authentication</Text>
                   <Text style={styles.toggleSubtitle}>Add extra security to your account</Text>
@@ -168,14 +185,14 @@ export default function PrivacySecurityScreen() {
           <Text style={styles.sectionTitle}>Privacy</Text>
           <View style={styles.sectionContent}>
             <ToggleRow
-              icon="👁"
+              icon={require('../../assets/icons/CWIcons002/DataSharingIcon.png')}
               title="Data Sharing"
               subtitle="Control how your data is shared"
               settingKey="dataSharing"
             />
             <View style={styles.divider} />
             <ToggleRow
-              icon="🛡"
+              icon={require('../../assets/icons/CWIcons002/DataSharingIcon.png')}
               title="Analytics & Crash Reports"
               subtitle="Help improve the app"
               settingKey="analyticsReports"
@@ -195,7 +212,7 @@ export default function PrivacySecurityScreen() {
             />
             <View style={styles.divider} />
             <DataManagementRow
-              icon="⚠️"
+              icon={require('../../assets/icons/CWIcons002/TwoFactorAuthIcon.png')}
               title="Delete Account"
               subtitle="Permanently delete your account"
               isDestructive={true}
@@ -280,10 +297,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   actionIcon: {
-    fontSize: 24,
+    width: 24,
+    height: 24,
     marginRight: 16,
-    width: 28,
-    textAlign: 'center',
   },
   actionTextContainer: {
     flex: 1,
@@ -317,10 +333,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   toggleIcon: {
-    fontSize: 24,
+    width: 24,
+    height: 24,
     marginRight: 16,
-    width: 28,
-    textAlign: 'center',
   },
   toggleTextContainer: {
     flex: 1,
@@ -346,13 +361,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF5F5',
   },
   dataIcon: {
-    fontSize: 24,
+    width: 24,
+    height: 24,
     marginRight: 16,
-    width: 28,
-    textAlign: 'center',
   },
   dataIconDestructive: {
-    fontSize: 20,
+    width: 20,
+    height: 20,
   },
   dataTextContainer: {
     flex: 1,

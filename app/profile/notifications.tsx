@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, SafeAreaView, Switch } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ScrollView,
+  SafeAreaView,
+  Switch,
+  Image,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -34,14 +43,14 @@ export default function NotificationsScreen() {
     subtitle,
     settingKey,
   }: {
-    icon: string;
+    icon: any;
     title: string;
     subtitle: string;
     settingKey: keyof NotificationSettings;
   }) => (
     <View style={styles.toggleRow}>
       <View style={styles.toggleLeft}>
-        <Text style={styles.toggleIcon}>{icon}</Text>
+        <Image source={icon} style={styles.toggleIcon} resizeMode="contain" />
         <View style={styles.toggleTextContainer}>
           <Text style={styles.toggleTitle}>{title}</Text>
           <Text style={styles.toggleSubtitle}>{subtitle}</Text>
@@ -81,14 +90,14 @@ export default function NotificationsScreen() {
           <Text style={styles.sectionTitle}>Codeword Alerts</Text>
           <View style={styles.sectionContent}>
             <ToggleRow
-              icon="🔔"
+              icon={require('../../assets/icons/CWIcons002/PushNotificationsIcon.png')}
               title="Push Notifications"
               subtitle="Receive alerts when allies send their Codeword"
               settingKey="pushNotifications"
             />
             <View style={styles.divider} />
             <ToggleRow
-              icon="📱"
+              icon={require('../../assets/icons/CWIcons002/CriticalAlertsIcon.png')}
               title="Critical Alerts"
               subtitle="Override Do Not Disturb for emergency alerts"
               settingKey="criticalAlerts"
@@ -101,7 +110,7 @@ export default function NotificationsScreen() {
           <Text style={styles.sectionTitle}>General Notifications</Text>
           <View style={styles.sectionContent}>
             <ToggleRow
-              icon="🔔"
+              icon={require('../../assets/icons/CWIcons002/AppUpdatesIcon.png')}
               title="App Updates"
               subtitle="Get notified about new features and updates"
               settingKey="appUpdates"
@@ -128,7 +137,7 @@ export default function NotificationsScreen() {
             />
             <View style={styles.divider} />
             <ToggleRow
-              icon="📳"
+              icon={require('../../assets/icons/CWIcons002/VibrationIcon.png')}
               title="Vibration"
               subtitle="Vibrate for notifications"
               settingKey="vibration"
@@ -212,10 +221,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   toggleIcon: {
-    fontSize: 24,
+    width: 24,
+    height: 24,
     marginRight: 16,
-    width: 28,
-    textAlign: 'center',
   },
   toggleTextContainer: {
     flex: 1,

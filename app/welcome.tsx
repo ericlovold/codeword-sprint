@@ -8,12 +8,12 @@ export default function WelcomeScreen() {
   const router = useRouter();
 
   const handleGetStarted = () => {
-    // Navigate to onboarding flow
-    router.push('/onboarding');
+    // Navigate to onboarding carousel
+    router.push('/choose-codeword');
   };
 
   const handleHaveAccount = () => {
-    // Navigate to login
+    // Navigate to login screen
     router.push('/login');
   };
 

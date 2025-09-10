@@ -1,12 +1,16 @@
+import { Redirect, Slot } from 'expo-router';
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import BrandHeader from '../../src/ui/BrandHeader';
 import CWTabBar from '../../src/ui/CWTabBar';
+import { useAuth } from '../../src/contexts/AuthContext';
+import OfflineBanner from '../../src/components/OfflineBanner';
 
-export default function TabLayout() {
+function ProtectedTabsLayout() {
   return (
     <View style={styles.container}>
+      <OfflineBanner />
       <Tabs
         screenOptions={{
           header: () => <BrandHeader />,
@@ -29,6 +33,23 @@ export default function TabLayout() {
       </Tabs>
     </View>
   );
+}
+
+export default function TabLayout() {
+  const { state, loading } = useAuth();
+
+  // Show loading while auth state is being determined
+  if (loading) {
+    return <Slot />; // Let outer layout handle loading state
+  }
+
+  // Redirect to login if not authenticated
+  if (!state.token) {
+    return <Redirect href="/login" />;
+  }
+
+  // User is authenticated, show the tabs
+  return <ProtectedTabsLayout />;
 }
 
 const styles = StyleSheet.create({
