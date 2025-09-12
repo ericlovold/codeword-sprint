@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Image, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '../../src/contexts/AuthContext';
 
 const menuItems = [
   {
@@ -53,12 +54,25 @@ const menuItems = [
 export default function ProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { state, signOut } = useAuth();
+
+  const isGuest = state.token?.startsWith('guest_') || false;
 
   const handleItemPress = (item: any) => {
     if (item.action === 'signout') {
-      // Handle sign out
-      console.log('Sign out');
+      Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Sign Out', style: 'destructive', onPress: signOut },
+      ]);
     } else if (item.route) {
+      if (isGuest && (item.id === 'personal' || item.id === 'privacy')) {
+        Alert.alert(
+          'Sign In Required',
+          'This feature requires a full account. Please sign in to continue.',
+          [{ text: 'OK' }],
+        );
+        return;
+      }
       router.push(item.route);
     }
   };
@@ -73,6 +87,12 @@ export default function ProfileScreen() {
         <View style={styles.header}>
           <Text style={styles.title}>Profile Settings</Text>
           <Text style={styles.subtitle}>Manage your account and preferences</Text>
+          {isGuest && (
+            <View style={styles.guestBanner}>
+              <Text style={styles.guestText}>👤 Guest Mode</Text>
+              <Text style={styles.guestSubtext}>Sign in for full access to all features</Text>
+            </View>
+          )}
         </View>
 
         {/* Menu Items */}
@@ -211,5 +231,25 @@ const styles = StyleSheet.create({
   footerVersion: {
     fontSize: 12,
     color: '#999999',
+  },
+  guestBanner: {
+    backgroundColor: '#FFF3CD',
+    borderRadius: 12,
+    padding: 12,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: '#FFE69C',
+    alignItems: 'center',
+  },
+  guestText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#856404',
+    marginBottom: 4,
+  },
+  guestSubtext: {
+    fontSize: 14,
+    color: '#6C5304',
+    textAlign: 'center',
   },
 });

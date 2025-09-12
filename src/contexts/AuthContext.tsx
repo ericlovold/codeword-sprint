@@ -21,6 +21,7 @@ type AuthContextType = {
     idToken: string;
     userInfo?: any;
   }) => Promise<void>;
+  signInAsGuest: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -96,10 +97,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signInAsGuest = async () => {
+    try {
+      // Create a local guest session without backend
+      const guestToken = `guest_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+      const guestUserId = `guest_${Date.now()}`;
+      const guestUser = {
+        id: guestUserId,
+        name: 'Guest User',
+        authProvider: 'guest',
+      };
+
+      // Store guest session data
+      await AsyncStorage.multiSet([
+        ['auth.token', guestToken],
+        ['auth.userId', guestUserId],
+        ['auth.user', JSON.stringify(guestUser)],
+      ]);
+
+      setState({
+        token: guestToken,
+        userId: guestUserId,
+        user: guestUser,
+      });
+    } catch (error) {
+      console.error('Guest sign in error:', error);
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     try {
-      // Optionally notify backend of logout
-      if (state.token) {
+      // Optionally notify backend of logout (skip for guest users)
+      if (state.token && !state.token.startsWith('guest_')) {
         try {
           await apiFetch('/auth/logout', {
             method: 'POST',
@@ -120,7 +150,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const value = useMemo(() => ({ state, loading, signIn, signOut }), [state, loading]);
+  const value = useMemo(
+    () => ({ state, loading, signIn, signInAsGuest, signOut }),
+    [state, loading],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

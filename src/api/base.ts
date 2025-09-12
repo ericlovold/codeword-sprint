@@ -32,7 +32,19 @@ export async function apiFetch<T>(
   if (!skipAuth) {
     const authToken = token || (await AsyncStorage.getItem('auth.token'));
     if (authToken) {
-      headers.set('Authorization', `Bearer ${authToken}`);
+      // Allow certain endpoints for guest users
+      const isGuestToken = authToken.startsWith('guest_');
+      const guestAllowedPaths = ['/chat', '/api/chat', '/sessions/create'];
+      const isAllowedForGuest = guestAllowedPaths.some((allowed) => path.includes(allowed));
+
+      if (isGuestToken && !isAllowedForGuest) {
+        throw new ApiError('Feature not available in guest mode. Please sign in to continue.');
+      }
+
+      // For guest users on allowed endpoints, don't send the guest token to backend
+      if (!isGuestToken) {
+        headers.set('Authorization', `Bearer ${authToken}`);
+      }
     }
   }
 

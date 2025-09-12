@@ -17,7 +17,7 @@ import Svg, { Path } from 'react-native-svg';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { signIn } = useAuth();
+  const { signIn, signInAsGuest } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [authMethod, setAuthMethod] = useState<string | null>(null);
 
@@ -96,8 +96,25 @@ export default function LoginScreen() {
         {
           text: 'Continue as Guest',
           onPress: async () => {
-            await storage.setOnboardingCompleted();
-            router.replace('/(tabs)');
+            try {
+              setIsLoading(true);
+              setAuthMethod('guest');
+
+              // Sign in as guest using auth context
+              await signInAsGuest();
+
+              // Mark onboarding as completed
+              await storage.setOnboardingCompleted();
+
+              // Navigate to main app
+              router.replace('/(tabs)');
+            } catch (error) {
+              console.error('Guest sign in failed:', error);
+              Alert.alert('Error', 'Failed to continue as guest. Please try again.');
+            } finally {
+              setIsLoading(false);
+              setAuthMethod(null);
+            }
           },
         },
       ],

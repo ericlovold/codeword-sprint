@@ -1,6 +1,7 @@
 // src/api/chat.ts
 import Constants from 'expo-constants';
 import { apiFetch, ApiError } from './base';
+import { API_BASE } from '../config/env';
 
 // Additional configuration from app.config.js
 const config = Constants?.expoConfig?.extra as any;
@@ -240,9 +241,7 @@ async function sendMessage(
     content: data.response || '',
     timestamp: Date.now(),
     id: data.session_id + '-' + Date.now(),
-    metadata: {
-      crisis_level: data.crisis_level || 1,
-    },
+    metadata: data,
   };
 }
 
