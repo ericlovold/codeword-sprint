@@ -20,8 +20,9 @@ app = Flask(__name__)
 CORS(app)
 
 # OpenAI Configuration
-openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-if not openai_client.api_key:
+api_key = os.getenv('OPENAI_API_KEY')
+openai_client = OpenAI(api_key=api_key) if api_key else None
+if not api_key:
     logger.error("OPENAI_API_KEY environment variable not set")
 
 # Store sessions in memory (use Redis/DB in production)
@@ -112,7 +113,7 @@ def chat():
         })
         
         # Check if OpenAI is configured
-        if not openai_client.api_key:
+        if not openai_client:
             return jsonify({
                 'response': 'Echo: ' + message,
                 'timestamp': datetime.utcnow().isoformat(),
@@ -219,7 +220,7 @@ Respond naturally and supportively to help the user through their situation.'''
 @app.route('/healthz', methods=['GET'])
 def healthz():
     """Health check endpoint that includes OpenAI status"""
-    openai_status = "configured" if openai_client.api_key else "missing_api_key"
+    openai_status = "configured" if openai_client else "missing_api_key"
     
     return jsonify({
         "status": "healthy",
@@ -251,7 +252,7 @@ if __name__ == '__main__':
     debug = os.getenv('DEBUG', 'false').lower() == 'true'
     
     logger.info(f"Starting Codeword Backend v{backend.version}")
-    logger.info(f"OpenAI configured: {bool(openai_client.api_key)}")
+    logger.info(f"OpenAI configured: {bool(openai_client)}")
     logger.info(f"Running on port: {port}")
     
     app.run(host='0.0.0.0', port=port, debug=debug)
