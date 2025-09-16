@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
-import openai
+from openai import OpenAI
 import logging
 
 # Configure logging
@@ -20,8 +20,8 @@ app = Flask(__name__)
 CORS(app)
 
 # OpenAI Configuration
-openai.api_key = os.getenv('OPENAI_API_KEY')
-if not openai.api_key:
+openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+if not openai_client.api_key:
     logger.error("OPENAI_API_KEY environment variable not set")
 
 # Store sessions in memory (use Redis/DB in production)
@@ -112,7 +112,7 @@ def chat():
         })
         
         # Check if OpenAI is configured
-        if not openai.api_key:
+        if not openai_client.api_key:
             return jsonify({
                 'response': 'Echo: ' + message,
                 'timestamp': datetime.utcnow().isoformat(),
@@ -148,7 +148,7 @@ Respond naturally and supportively to help the user through their situation.'''
         
         try:
             # Call OpenAI GPT-4o
-            response = openai.chat.completions.create(
+            response = openai_client.chat.completions.create(
                 model="gpt-4o",
                 messages=conversation,
                 max_tokens=500,
@@ -219,7 +219,7 @@ Respond naturally and supportively to help the user through their situation.'''
 @app.route('/healthz', methods=['GET'])
 def healthz():
     """Health check endpoint that includes OpenAI status"""
-    openai_status = "configured" if openai.api_key else "missing_api_key"
+    openai_status = "configured" if openai_client.api_key else "missing_api_key"
     
     return jsonify({
         "status": "healthy",
@@ -251,7 +251,7 @@ if __name__ == '__main__':
     debug = os.getenv('DEBUG', 'false').lower() == 'true'
     
     logger.info(f"Starting Codeword Backend v{backend.version}")
-    logger.info(f"OpenAI configured: {bool(openai.api_key)}")
+    logger.info(f"OpenAI configured: {bool(openai_client.api_key)}")
     logger.info(f"Running on port: {port}")
     
     app.run(host='0.0.0.0', port=port, debug=debug)
