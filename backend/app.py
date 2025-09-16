@@ -130,10 +130,24 @@ def chat():
         # Build conversation history for OpenAI
         conversation = []
         
-        # System prompt for crisis support
-        conversation.append({
-            'role': 'system',
-            'content': '''You are a supportive AI coach for the Codeword app, designed to provide emotional support and crisis intervention. You are:
+        # Crisis detection keywords (MIKA-inspired)
+        crisis_keywords = {
+            'critical': ['kill myself', 'suicide', 'end my life', 'want to die', 'overdose', 'heart attack', 'stroke'],
+            'high': ['hurt myself', 'self harm', 'cut myself', 'want to hurt'],
+            'moderate': ['hopeless', 'worthless', 'give up', 'no point', 'nobody cares'],
+            'low': ['sad', 'depressed', 'anxious', 'overwhelmed', 'stressed']
+        }
+        
+        # Simple crisis detection
+        message_lower = message.lower()
+        crisis_level = 'none'
+        for level, keywords in crisis_keywords.items():
+            if any(keyword in message_lower for keyword in keywords):
+                crisis_level = level
+                break
+        
+        # Enhanced system prompt with crisis awareness
+        system_content = '''You are a supportive AI coach for the Codeword app, designed to provide emotional support and crisis intervention. You are:
 
 - Empathetic, caring, and non-judgmental
 - Trained to detect signs of crisis or mental health concerns
@@ -141,9 +155,20 @@ def chat():
 - Able to suggest coping strategies and resources
 - Professional but warm in tone
 
-If you detect any signs of self-harm, suicide ideation, or immediate danger, prioritize safety and encourage seeking professional help immediately.
+CRISIS PROTOCOL: If you detect signs of self-harm, suicide ideation, or immediate danger:
+1. Express immediate concern and validation
+2. Encourage contacting 988 Suicide & Crisis Lifeline (call or text 988)
+3. Suggest emergency services (911) if immediate physical danger
+4. Provide Crisis Text Line (text HOME to 741741) as alternative
+5. Emphasize that help is available and they matter
+
+Current message crisis level detected: ''' + crisis_level + '''
 
 Respond naturally and supportively to help the user through their situation.'''
+        
+        conversation.append({
+            'role': 'system',
+            'content': system_content
         })
         
         # Add recent conversation history (last 10 messages)
@@ -199,7 +224,13 @@ Respond naturally and supportively to help the user through their situation.'''
                     'response': ai_response,
                     'timestamp': datetime.utcnow().isoformat(),
                     'session_id': session_id,
-                    'message_count': len(sessions[session_id]['messages'])
+                    'message_count': len(sessions[session_id]['messages']),
+                    'crisis_level': crisis_level,
+                    'crisis_support': {
+                        '988_lifeline': 'Call or text 988 for immediate crisis support',
+                        'crisis_text': 'Text HOME to 741741 for Crisis Text Line',
+                        'emergency': 'Call 911 for immediate physical danger'
+                    } if crisis_level in ['critical', 'high'] else None
                 })
                 
         except Exception as openai_error:
