@@ -1,7 +1,7 @@
 // src/api/chat.ts
 import Constants from 'expo-constants';
 import { apiFetch, ApiError } from './base';
-import { API_BASE } from '../config/env';
+import { API_BASE } from '../lib/config';
 
 // Additional configuration from app.config.js
 const config = Constants?.expoConfig?.extra as any;

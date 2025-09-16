@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Codeword",
-    "slug": "codeword",
+    "slug": "codeword-sprint",
     "owner": "xcai-aiia",
     "scheme": "codeword",
     "version": "1.0.0",
@@ -32,9 +32,9 @@
       ]
     ],
     "extra": {
-      "EXPO_PUBLIC_API_BASE": "http://localhost:9989",
-      "API_BASE_URL": "http://localhost:9989",
-      "WS_URL": "ws://localhost:9989/ws/chat",
+      "EXPO_PUBLIC_API_BASE": "https://vibrant-consideration-production.up.railway.app",
+      "API_BASE_URL": "https://vibrant-consideration-production.up.railway.app", 
+      "WS_URL": "wss://vibrant-consideration-production.up.railway.app/ws/chat",
       "CLIENT_NAME": "codeword-app",
       "CLIENT_VERSION": "1.0.0",
       "GOOGLE_IOS_CLIENT_ID": "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com",
