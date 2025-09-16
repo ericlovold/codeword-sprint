@@ -21,9 +21,16 @@ CORS(app)
 
 # OpenAI Configuration
 api_key = os.getenv('OPENAI_API_KEY')
-openai_client = OpenAI(api_key=api_key) if api_key else None
-if not api_key:
+if api_key:
+    try:
+        openai_client = OpenAI(api_key=api_key)
+        logger.info("OpenAI client initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize OpenAI client: {e}")
+        openai_client = None
+else:
     logger.error("OPENAI_API_KEY environment variable not set")
+    openai_client = None
 
 # Store sessions in memory (use Redis/DB in production)
 sessions = {}
