@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 """
 Codeword Backend - Crisis support and life coaching API
+Powered by XCAi-AIIA Multi-Agent System
 Connects to OpenAI GPT-4o for real AI responses
 """
 import os
 import time
 import json
+import asyncio
 from datetime import datetime
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
 from openai import OpenAI
 import logging
+
+# Import XCAi-AIIA Multi-Agent System
+from xcai_agents import initialize_xcai_system
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -31,6 +36,14 @@ if api_key:
 else:
     logger.error("OPENAI_API_KEY environment variable not set")
     openai_client = None
+
+# Initialize XCAi-AIIA Multi-Agent System
+try:
+    xcai_orchestrator = initialize_xcai_system(openai_client=openai_client)
+    logger.info("XCAi-AIIA Multi-Agent System initialized successfully")
+except Exception as e:
+    logger.error(f"Failed to initialize XCAi-AIIA system: {e}")
+    xcai_orchestrator = None
 
 # Store sessions in memory (use Redis/DB in production)
 sessions = {}
@@ -101,7 +114,7 @@ def chat():
         if not message.strip():
             return jsonify({'error': 'Message cannot be empty'}), 400
             
-        logger.info(f"Chat request - Session: {session_id}, Message: {message[:50]}...")
+        logger.info(f"XCAi-AIIA Chat request - Session: {session_id}, Message: {message[:50]}...")
         
         # Ensure session exists
         if session_id not in sessions:
@@ -119,125 +132,26 @@ def chat():
             'timestamp': time.time()
         })
         
-        # Check if OpenAI is configured
-        if not openai_client:
-            return jsonify({
-                'response': 'Echo: ' + message,
-                'timestamp': datetime.utcnow().isoformat(),
-                'error': 'OpenAI API key not configured'
-            })
-        
-        # Build conversation history for OpenAI
-        conversation = []
-        
-        # Crisis detection keywords (MIKA-inspired)
-        crisis_keywords = {
-            'critical': ['kill myself', 'suicide', 'end my life', 'want to die', 'overdose', 'heart attack', 'stroke'],
-            'high': ['hurt myself', 'self harm', 'cut myself', 'want to hurt'],
-            'moderate': ['hopeless', 'worthless', 'give up', 'no point', 'nobody cares'],
-            'low': ['sad', 'depressed', 'anxious', 'overwhelmed', 'stressed']
+        # Prepare request data for XCAi-AIIA orchestrator
+        request_data = {
+            'message': message,
+            'session_id': session_id,
+            'conversation_history': sessions[session_id]['messages'],
+            'timestamp': datetime.utcnow().isoformat(),
+            'user_context': data.get('user_context', {})
         }
         
-        # Simple crisis detection
-        message_lower = message.lower()
-        crisis_level = 'none'
-        for level, keywords in crisis_keywords.items():
-            if any(keyword in message_lower for keyword in keywords):
-                crisis_level = level
-                break
-        
-        # Enhanced system prompt with crisis awareness
-        system_content = '''You are a supportive AI coach for the Codeword app, designed to provide emotional support and crisis intervention. You are:
-
-- Empathetic, caring, and non-judgmental
-- Trained to detect signs of crisis or mental health concerns
-- Focused on providing immediate emotional support
-- Able to suggest coping strategies and resources
-- Professional but warm in tone
-
-CRISIS PROTOCOL: If you detect signs of self-harm, suicide ideation, or immediate danger:
-1. Express immediate concern and validation
-2. Encourage contacting 988 Suicide & Crisis Lifeline (call or text 988)
-3. Suggest emergency services (911) if immediate physical danger
-4. Provide Crisis Text Line (text HOME to 741741) as alternative
-5. Emphasize that help is available and they matter
-
-Current message crisis level detected: ''' + crisis_level + '''
-
-Respond naturally and supportively to help the user through their situation.'''
-        
-        conversation.append({
-            'role': 'system',
-            'content': system_content
-        })
-        
-        # Add recent conversation history (last 10 messages)
-        recent_messages = sessions[session_id]['messages'][-10:]
-        for msg in recent_messages:
-            conversation.append({
-                'role': msg['role'],
-                'content': msg['content']
-            })
-        
-        try:
-            # Call OpenAI GPT-4o
-            response = openai_client.chat.completions.create(
-                model="gpt-4o",
-                messages=conversation,
-                max_tokens=500,
-                temperature=0.7,
-                stream=stream
-            )
+        # Check if XCAi-AIIA system is available
+        if not xcai_orchestrator:
+            # Fallback to simple crisis detection
+            crisis_keywords = ['crisis', 'suicide', 'kill myself', 'hurt myself', 'hopeless']
+            is_crisis = any(keyword in message.lower() for keyword in crisis_keywords)
             
-            if stream:
-                def generate():
-                    full_response = ""
-                    for chunk in response:
-                        if chunk.choices[0].delta.content:
-                            content = chunk.choices[0].delta.content
-                            full_response += content
-                            yield f"data: {json.dumps({'content': content, 'done': False})}\n\n"
-                    
-                    # Add assistant message to history
-                    sessions[session_id]['messages'].append({
-                        'role': 'assistant',
-                        'content': full_response,
-                        'timestamp': time.time()
-                    })
-                    
-                    yield f"data: {json.dumps({'content': '', 'done': True})}\n\n"
-                
-                return Response(generate(), mimetype='text/plain')
-            else:
-                ai_response = response.choices[0].message.content
-                
-                # Add assistant message to history
-                sessions[session_id]['messages'].append({
-                    'role': 'assistant',
-                    'content': ai_response,
-                    'timestamp': time.time()
-                })
-                
-                logger.info(f"OpenAI response: {ai_response[:100]}...")
-                
-                return jsonify({
-                    'response': ai_response,
-                    'timestamp': datetime.utcnow().isoformat(),
-                    'session_id': session_id,
-                    'message_count': len(sessions[session_id]['messages']),
-                    'crisis_level': crisis_level,
-                    'crisis_support': {
-                        '988_lifeline': 'Call or text 988 for immediate crisis support',
-                        'crisis_text': 'Text HOME to 741741 for Crisis Text Line',
-                        'emergency': 'Call 911 for immediate physical danger'
-                    } if crisis_level in ['critical', 'high'] else None
-                })
-                
-        except Exception as openai_error:
-            logger.error(f"OpenAI API error: {openai_error}")
-            
-            # Fallback to echo if OpenAI fails
-            fallback_response = f"I'm having trouble connecting to my AI service right now. Let me echo back what you said: {message}"
+            fallback_response = (
+                "I'm here to help. The multi-agent system is currently unavailable, "
+                "but I want you to know that support is available. "
+                "If you're in crisis, please call 988 or text HOME to 741741."
+            ) if is_crisis else f"Echo: {message}"
             
             sessions[session_id]['messages'].append({
                 'role': 'assistant',
@@ -248,7 +162,82 @@ Respond naturally and supportively to help the user through their situation.'''
             return jsonify({
                 'response': fallback_response,
                 'timestamp': datetime.utcnow().isoformat(),
-                'error': f'OpenAI error: {str(openai_error)}'
+                'session_id': session_id,
+                'system': 'fallback',
+                'error': 'XCAi-AIIA system unavailable'
+            })
+        
+        try:
+            # Quick crisis detection for immediate crisis mode activation
+            crisis_indicators = ['suicide', 'kill myself', 'end my life', 'overdose', 'emergency']
+            crisis_mode = any(indicator in message.lower() for indicator in crisis_indicators)
+            
+            # Use async orchestration with event loop
+            if hasattr(asyncio, 'run'):
+                # Python 3.7+
+                orchestration_result = asyncio.run(
+                    xcai_orchestrator.orchestrate_request(request_data, crisis_mode=crisis_mode)
+                )
+            else:
+                # Fallback for older Python versions
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    orchestration_result = loop.run_until_complete(
+                        xcai_orchestrator.orchestrate_request(request_data, crisis_mode=crisis_mode)
+                    )
+                finally:
+                    loop.close()
+            
+            ai_response = orchestration_result['response']
+            
+            # Add assistant message to history
+            sessions[session_id]['messages'].append({
+                'role': 'assistant',
+                'content': ai_response,
+                'timestamp': time.time()
+            })
+            
+            logger.info(f"XCAi-AIIA response ({orchestration_result['response_time_ms']:.1f}ms): {ai_response[:100]}...")
+            
+            return jsonify({
+                'response': ai_response,
+                'timestamp': datetime.utcnow().isoformat(),
+                'session_id': session_id,
+                'message_count': len(sessions[session_id]['messages']),
+                'system': 'xcai-aiia',
+                'agents_used': orchestration_result.get('agents_used', []),
+                'response_time_ms': orchestration_result.get('response_time_ms', 0),
+                'crisis_mode': orchestration_result.get('crisis_mode', False),
+                'crisis_support': {
+                    '988_lifeline': 'Call or text 988 for immediate crisis support',
+                    'crisis_text': 'Text HOME to 741741 for Crisis Text Line',
+                    'emergency': 'Call 911 for immediate physical danger'
+                } if crisis_mode else None
+            })
+                
+        except Exception as xcai_error:
+            logger.error(f"XCAi-AIIA orchestration error: {xcai_error}")
+            
+            # Fallback response with crisis awareness
+            fallback_response = (
+                "I'm experiencing a technical issue with the AI system, but your safety is my priority. "
+                "If you're in crisis, please call 988 (Suicide & Crisis Lifeline) or text HOME to 741741 immediately. "
+                f"In the meantime, I hear you saying: {message}"
+            )
+            
+            sessions[session_id]['messages'].append({
+                'role': 'assistant',
+                'content': fallback_response,
+                'timestamp': time.time()
+            })
+            
+            return jsonify({
+                'response': fallback_response,
+                'timestamp': datetime.utcnow().isoformat(),
+                'session_id': session_id,
+                'system': 'fallback',
+                'error': f'XCAi-AIIA error: {str(xcai_error)}'
             })
             
     except Exception as e:
@@ -257,18 +246,33 @@ Respond naturally and supportively to help the user through their situation.'''
 
 @app.route('/healthz', methods=['GET'])
 def healthz():
-    """Health check endpoint that includes OpenAI status"""
+    """Health check endpoint that includes OpenAI and XCAi-AIIA status"""
     openai_status = "configured" if openai_client else "missing_api_key"
+    xcai_status = "active" if xcai_orchestrator else "unavailable"
     
-    return jsonify({
+    health_data = {
         "status": "healthy",
         "models_available": {
             "gpt-4o": openai_status,
             "primary": "gpt-4o"
         },
-        "orchestration_status": "active",
+        "xcai_aiia_system": {
+            "status": xcai_status,
+            "orchestrator": "active" if xcai_orchestrator else "inactive"
+        },
         "timestamp": datetime.utcnow().isoformat()
-    })
+    }
+    
+    # Add XCAi-AIIA system health if available
+    if xcai_orchestrator:
+        try:
+            system_health = xcai_orchestrator.get_system_health()
+            health_data["xcai_aiia_system"]["agents"] = system_health.get("agents", {})
+            health_data["xcai_aiia_system"]["performance"] = system_health.get("performance", {})
+        except Exception as e:
+            logger.warning(f"Could not get XCAi-AIIA system health: {e}")
+    
+    return jsonify(health_data)
 
 @app.route('/events/<session_id>', methods=['GET'])
 def get_events(session_id):
